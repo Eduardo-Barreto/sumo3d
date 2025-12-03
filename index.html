@@ -6,6 +6,7 @@
     <title>Robot Sumo VR - All Japan Style</title>
     <meta name="description" content="Experiência imersiva de pilotar um robô sumô no estilo All Japan Robot Sumo Tournament">
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,10 +19,115 @@
         <div class="hud-status" id="status" aria-live="polite"></div>
     </div>
 
+    <button class="multiplayer-btn" id="multiplayer-btn">Multiplayer</button>
+
+    <div class="score-display" id="score-display">
+        <div class="score-value" id="score-value">0 × 0</div>
+        <div class="score-label">Melhor de 3</div>
+    </div>
+
+    <!-- Modal Multiplayer -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <h2 class="modal-title">Multiplayer</h2>
+
+            <!-- Menu -->
+            <div class="modal-section active" id="section-menu">
+                <div class="modal-buttons">
+                    <button class="modal-btn primary" id="btn-create">Criar Sala</button>
+                    <button class="modal-btn" id="btn-join">Entrar em Sala</button>
+                </div>
+            </div>
+
+            <!-- Create Room - Step 1: Nickname -->
+            <div class="modal-section" id="section-create-nickname">
+                <input
+                    type="text"
+                    class="nickname-input"
+                    id="create-nickname-input"
+                    placeholder="Seu nome"
+                    maxlength="12"
+                    autocomplete="off"
+                    spellcheck="false">
+                <div class="modal-buttons">
+                    <button class="modal-btn primary" id="btn-create-submit">Criar Sala</button>
+                    <button class="modal-btn btn-back">Voltar</button>
+                </div>
+            </div>
+
+            <!-- Create Room - Step 2: Waiting -->
+            <div class="modal-section" id="section-create-waiting">
+                <div class="room-code">
+                    <div class="room-code-label">Código da Sala</div>
+                    <div class="room-code-value" id="room-code-value">------</div>
+                    <div class="room-code-url" id="room-code-url"></div>
+                </div>
+                <p class="waiting-text">Aguardando jogador...</p>
+                <div class="modal-buttons">
+                    <button class="modal-btn btn-back">Cancelar</button>
+                </div>
+            </div>
+
+            <!-- Join Room -->
+            <div class="modal-section" id="section-join">
+                <input
+                    type="text"
+                    class="nickname-input"
+                    id="join-nickname-input"
+                    placeholder="Seu nome"
+                    maxlength="12"
+                    autocomplete="off"
+                    spellcheck="false">
+                <input
+                    type="text"
+                    class="join-input"
+                    id="join-code-input"
+                    placeholder="CÓDIGO DA SALA"
+                    maxlength="6"
+                    autocomplete="off"
+                    spellcheck="false">
+                <div class="modal-buttons">
+                    <button class="modal-btn primary" id="btn-join-submit">Entrar</button>
+                    <button class="modal-btn btn-back">Voltar</button>
+                </div>
+            </div>
+
+            <!-- Joining -->
+            <div class="modal-section" id="section-joining">
+                <p class="waiting-text">Conectando...</p>
+            </div>
+
+            <!-- Connected -->
+            <div class="modal-section" id="section-connected">
+                <div class="room-code">
+                    <div class="room-code-label">Conectado</div>
+                    <div class="score-value" id="modal-score">0 × 0</div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-btn danger" id="btn-disconnect">Desconectar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Match End Overlay -->
+    <div class="match-end-overlay" id="match-end-overlay">
+        <div class="match-result" id="match-result">Vitória!</div>
+        <button class="modal-btn primary" id="btn-rematch">Jogar Novamente</button>
+    </div>
+
+    <!-- Countdown Overlay -->
+    <div class="countdown-overlay" id="countdown-overlay">
+        <div class="countdown-number" id="countdown-number">3</div>
+    </div>
+
     <script src="js/constants.js"></script>
     <script src="js/input.js"></script>
+    <script src="js/multiplayer.js"></script>
+    <script src="js/remote-robot.js"></script>
     <script src="js/game.js"></script>
     <script src="js/box.js"></script>
+    <script src="js/ui.js"></script>
 
     <a-scene
         background="color: #050505"
@@ -65,8 +171,8 @@
             </a-ring>
 
             <!-- Shikiri lines (starting lines) -->
-            <a-box position="-0.15 0.132 0" width="0.02" depth="0.30" height="0.001" color="#A52" material="shader: flat"></a-box>
-            <a-box position="0.15 0.132 0" width="0.02" depth="0.30" height="0.001" color="#A52" material="shader: flat"></a-box>
+            <a-box position="0 0.132 -0.15" width="0.20" depth="0.02" height="0.001" color="#A52" material="shader: flat"></a-box>
+            <a-box position="0 0.132 0.15" width="0.20" depth="0.02" height="0.001" color="#A52" material="shader: flat"></a-box>
 
             <!-- Safety zones -->
             <a-box position="0.95 0.025 0" width="1.8" depth="4" height="0.05" color="#600" shadow="receive: true"></a-box>
@@ -80,31 +186,31 @@
             <a-plane position="0 -0.01 0" rotation="-90 0 0" width="10" height="10" color="#0a0a0a" shadow="receive: true"></a-plane>
         </a-entity>
 
-        <!-- Robot: 20x20x8cm total with wedge -->
+        <!-- Local Robot (Host: Sul) -->
         <a-entity
             id="robot-player"
-            position="0 0.17 0"
+            position="0 0.17 0.4"
             rotation="0 180 0"
             sumo-controls
             shadow="cast: true">
-            <!-- Main body (smaller to fit wedge in 20cm) -->
             <a-box
+                class="robot-body"
                 width="0.19"
                 height="0.08"
                 depth="0.16"
                 color="#555"
                 material="roughness: 0.8">
             </a-box>
-            <!-- Front panel -->
             <a-plane
+                class="robot-panel"
                 width="0.17"
                 height="0.06"
                 position="0 0 -0.081"
                 rotation="0 180 0"
                 color="#333">
             </a-plane>
-            <!-- Wedge (front blade) -->
             <a-box
+                class="robot-wedge"
                 position="0 -0.035 -0.095"
                 width="0.20"
                 height="0.008"
@@ -115,13 +221,48 @@
             </a-box>
         </a-entity>
 
+        <!-- Remote Robot (Guest: Norte) - Hidden by default -->
+        <a-entity
+            id="remote-robot"
+            position="0 0.17 -0.4"
+            rotation="0 0 0"
+            remote-robot="enabled: false"
+            visible="false"
+            shadow="cast: true">
+            <a-box
+                class="robot-body"
+                width="0.19"
+                height="0.08"
+                depth="0.16"
+                color="#8b4a4a"
+                material="roughness: 0.8">
+            </a-box>
+            <a-plane
+                class="robot-panel"
+                width="0.17"
+                height="0.06"
+                position="0 0 -0.081"
+                rotation="0 180 0"
+                color="#5c2d2d">
+            </a-plane>
+            <a-box
+                class="robot-wedge"
+                position="0 -0.035 -0.095"
+                width="0.20"
+                height="0.008"
+                depth="0.04"
+                rotation="-12 0 0"
+                color="#6b3d3d"
+                material="metalness: 0.5; roughness: 0.5">
+            </a-box>
+        </a-entity>
+
         <!-- Cardboard Box -->
         <a-entity
             id="cardboard-box"
             position="0 0.23 -0.4"
             pushable-box
             shadow="cast: true">
-            <!-- Main box -->
             <a-box
                 width="0.20"
                 height="0.20"
@@ -129,7 +270,6 @@
                 color="#c4a574"
                 material="roughness: 1">
             </a-box>
-            <!-- Tape stripe top -->
             <a-box
                 position="0 0.101 0"
                 width="0.04"
@@ -138,7 +278,6 @@
                 color="#d4a855"
                 material="shader: flat">
             </a-box>
-            <!-- Tape stripe front -->
             <a-box
                 position="0 0 -0.101"
                 width="0.04"
@@ -147,7 +286,6 @@
                 color="#d4a855"
                 material="shader: flat">
             </a-box>
-            <!-- Box flap lines -->
             <a-box position="0 0.098 -0.05" width="0.198" height="0.001" depth="0.002" color="#a08050" material="shader: flat"></a-box>
             <a-box position="0 0.098 0.05" width="0.198" height="0.001" depth="0.002" color="#a08050" material="shader: flat"></a-box>
         </a-entity>

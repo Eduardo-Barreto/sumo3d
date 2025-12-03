@@ -39,7 +39,7 @@ const InputHandler = {
         if (code === KeyCode.ARROW_DOWN || code === KeyCode.KEY_S) this.keys.backward = true;
         if (code === KeyCode.ARROW_LEFT || code === KeyCode.KEY_A) this.keys.left = true;
         if (code === KeyCode.ARROW_RIGHT || code === KeyCode.KEY_D) this.keys.right = true;
-        if (code === KeyCode.KEY_R && this.onReset) this.onReset();
+        if (code === KeyCode.KEY_R && this.onReset && !Multiplayer.isConnected()) this.onReset();
     },
 
     handleKeyUp(event) {

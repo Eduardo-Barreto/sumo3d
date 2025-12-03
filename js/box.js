@@ -26,6 +26,7 @@ AFRAME.registerComponent('pushable-box', {
     },
 
     tick(_time, timeDelta) {
+        if (Multiplayer.isConnected()) return;
         if (this.state === 'waiting') return;
 
         if (this.state === 'falling') {
@@ -135,5 +136,17 @@ AFRAME.registerComponent('pushable-box', {
         }
 
         return { x: 0, z: -0.5 };
+    },
+
+    resetToCenter() {
+        this.el.object3D.position.set(0, this.baseY, -0.4);
+        this.el.object3D.rotation.set(0, 0, 0);
+        this.fallVelocity = 0;
+        this.state = 'idle';
+
+        const target = this.data.target;
+        if (target) {
+            this.prevTargetPos.copy(target.object3D.position);
+        }
     }
 });

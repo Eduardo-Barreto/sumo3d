@@ -1,5 +1,8 @@
 'use strict';
 
+const ROBOT_COLLISION_DISTANCE = 0.22;
+const PUSH_STRENGTH = 0.08;
+
 function distanceFromCenter(x, z) {
     return Math.sqrt(x * x + z * z);
 }
@@ -21,8 +24,17 @@ AFRAME.registerComponent('sumo-controls', {
     init() {
         this.status = GameStatus.PLAYING;
         this.fallVelocity = 0;
+        this.isMultiplayer = false;
+        this.hasFallen = false;
+        this.isFrozen = false;
+
+        this.startPosition = new THREE.Vector3(0, POSITIONS.robotInitialY, 0.4);
+        this.startRotation = new THREE.Euler(0, Math.PI, 0);
+        this.prevPosition = new THREE.Vector3();
+        this.pushVelocity = new THREE.Vector3();
 
         InputHandler.init(this.resetRobot.bind(this));
+        this.setupMultiplayerCallbacks();
         this.resetRobot();
     },
 
@@ -30,23 +42,93 @@ AFRAME.registerComponent('sumo-controls', {
         InputHandler.cleanup();
     },
 
+    setupMultiplayerCallbacks() {
+        Multiplayer.onRemoteReset = () => {
+            this.resetRobot();
+            this.freeze();
+            UI.startCountdown(() => {
+                this.unfreeze();
+            });
+        };
+
+        Multiplayer.onPushReceived = (push) => {
+            const pos = this.el.object3D.position;
+            pos.x += push.x;
+            pos.z += push.z;
+        };
+    },
+
+    enableMultiplayer() {
+        this.isMultiplayer = true;
+        this.hasFallen = false;
+
+        if (Multiplayer.isHost) {
+            this.startPosition.set(0, POSITIONS.robotInitialY, 0.4);
+            this.startRotation.set(0, 0, 0);
+        } else {
+            this.startPosition.set(0, POSITIONS.robotInitialY, -0.4);
+            this.startRotation.set(0, Math.PI, 0);
+        }
+
+        this.resetRobot();
+    },
+
+    disableMultiplayer() {
+        this.isMultiplayer = false;
+        this.hasFallen = false;
+        this.isFrozen = false;
+
+        this.startPosition.set(0, POSITIONS.robotInitialY, 0.4);
+        this.startRotation.set(0, Math.PI, 0);
+
+        this.resetRobot();
+    },
+
+    freeze() {
+        this.isFrozen = true;
+    },
+
+    unfreeze() {
+        this.isFrozen = false;
+    },
+
     resetRobot() {
         const { position, rotation } = this.el.object3D;
 
-        position.set(0, POSITIONS.robotInitialY, 0);
-        rotation.set(0, Math.PI, 0);
+        position.copy(this.startPosition);
+        rotation.copy(this.startRotation);
 
         this.status = GameStatus.PLAYING;
         this.fallVelocity = 0;
+        this.hasFallen = false;
+        this.pushVelocity.set(0, 0, 0);
+        this.prevPosition.copy(this.startPosition);
 
         updateStatusDisplay('', false);
     },
 
     tick(_time, timeDelta) {
+        if (this.isFrozen) return;
+
         const { position } = this.el.object3D;
 
         if (position.y < POSITIONS.fallThresholdY) {
-            updateStatusDisplay('Caiu! Pressione R para resetar', true);
+            if (this.isMultiplayer && !this.hasFallen) {
+                this.hasFallen = true;
+                Multiplayer.sendFall();
+
+                setTimeout(() => {
+                    if (!Multiplayer.matchOver) {
+                        this.resetRobot();
+                        this.freeze();
+                        Multiplayer.sendReset();
+                        UI.startCountdown(() => {
+                            this.unfreeze();
+                        });
+                    }
+                }, MULTIPLAYER_CONFIG.resetDelayMs);
+            }
+            updateStatusDisplay('Caiu!', true);
             return;
         }
 
@@ -58,6 +140,12 @@ AFRAME.registerComponent('sumo-controls', {
         }
 
         this.updateMovement(dt);
+
+        if (this.isMultiplayer) {
+            this.handleRemoteRobotCollision();
+            this.sendStateToRemote();
+        }
+
         this.checkBoundary();
     },
 
@@ -70,6 +158,7 @@ AFRAME.registerComponent('sumo-controls', {
         const speed = drive * this.data.moveSpeed;
         position.x += Math.sin(rotation.y) * speed * dt;
         position.z += Math.cos(rotation.y) * speed * dt;
+
         position.y = POSITIONS.robotInitialY;
 
         const dist = distanceFromCenter(position.x, position.z);
@@ -83,6 +172,52 @@ AFRAME.registerComponent('sumo-controls', {
         } else {
             updateStatusDisplay('', false);
         }
+    },
+
+    handleRemoteRobotCollision() {
+        const remoteRobot = document.getElementById('remote-robot');
+        if (!remoteRobot || !remoteRobot.getAttribute('visible')) return;
+
+        const localPos = this.el.object3D.position;
+        const remotePos = remoteRobot.object3D.position;
+
+        const dx = localPos.x - remotePos.x;
+        const dz = localPos.z - remotePos.z;
+        const dist = Math.sqrt(dx * dx + dz * dz);
+
+        if (dist < ROBOT_COLLISION_DISTANCE && dist > 0.001) {
+            const moveX = localPos.x - this.prevPosition.x;
+            const moveZ = localPos.z - this.prevPosition.z;
+
+            const moveDist = Math.sqrt(moveX * moveX + moveZ * moveZ);
+            if (moveDist > 0.001) {
+                const nx = dx / dist;
+                const nz = dz / dist;
+
+                const moveDot = -(moveX * nx + moveZ * nz);
+
+                if (moveDot > 0) {
+                    Multiplayer.sendPush({ x: moveX, z: moveZ });
+                }
+            }
+
+            const overlap = ROBOT_COLLISION_DISTANCE - dist;
+            const sepX = (dx / dist) * overlap * 0.5;
+            const sepZ = (dz / dist) * overlap * 0.5;
+            localPos.x += sepX;
+            localPos.z += sepZ;
+        }
+
+        this.prevPosition.copy(localPos);
+    },
+
+    sendStateToRemote() {
+        const { position, rotation } = this.el.object3D;
+
+        Multiplayer.sendState(
+            { x: position.x, y: position.y, z: position.z },
+            { x: rotation.x, y: rotation.y, z: rotation.z }
+        );
     },
 
     checkBoundary() {
@@ -102,6 +237,6 @@ AFRAME.registerComponent('sumo-controls', {
         position.y -= this.fallVelocity * dt;
         rotation.x += PHYSICS.fallRotationSpeed * dt;
 
-        updateStatusDisplay('CAINDO! Pressione R', true);
+        updateStatusDisplay('CAINDO!', true);
     }
 });
