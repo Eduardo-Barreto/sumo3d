@@ -36,7 +36,7 @@ const UI = {
             btnDisconnect: document.getElementById('btn-disconnect'),
             btnRematch: document.getElementById('btn-rematch'),
             roomCodeValue: document.getElementById('room-code-value'),
-            roomCodeUrl: document.getElementById('room-code-url'),
+            btnCopyUrl: document.getElementById('btn-copy-url'),
             createNicknameInput: document.getElementById('create-nickname-input'),
             joinNicknameInput: document.getElementById('join-nickname-input'),
             joinCodeInput: document.getElementById('join-code-input'),
@@ -75,6 +75,7 @@ const UI = {
         this.elements.btnJoinSubmit?.addEventListener('click', () => this.joinRoom());
         this.elements.btnDisconnect?.addEventListener('click', () => this.disconnect());
         this.elements.btnRematch?.addEventListener('click', () => this.rematch());
+        this.elements.btnCopyUrl?.addEventListener('click', () => this.copyRoomUrl());
 
         this.elements.btnBack?.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -170,9 +171,6 @@ const UI = {
             if (this.elements.roomCodeValue) {
                 this.elements.roomCodeValue.textContent = code;
             }
-            if (this.elements.roomCodeUrl) {
-                this.elements.roomCodeUrl.textContent = Multiplayer.getShareURL();
-            }
         } catch (err) {
             console.error('Failed to create room:', err);
             this.showSection('menu');
@@ -206,6 +204,21 @@ const UI = {
         Multiplayer.sendRematch();
         this.hideMatchEnd();
         this.resetGameWithCountdown();
+    },
+
+    copyRoomUrl() {
+        const url = Multiplayer.getShareURL();
+        navigator.clipboard.writeText(url).then(() => {
+            const btn = this.elements.btnCopyUrl;
+            if (btn) {
+                btn.textContent = 'Copiado!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copiar Link';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }
+        });
     },
 
     resetGameWithCountdown() {

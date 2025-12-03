@@ -22,31 +22,9 @@ const MULTIPLAYER_CONFIG = Object.freeze({
     syncRateMs: 16,
     winScore: 2,
     resetDelayMs: 2000,
-    connectionTimeoutMs: 15000
+    connectionTimeoutMs: 30000
 });
 
-const ICE_SERVERS = [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    { urls: 'stun:stun2.l.google.com:19302' },
-    { urls: 'stun:stun3.l.google.com:19302' },
-    { urls: 'stun:stun4.l.google.com:19302' },
-    {
-        urls: 'turn:openrelay.metered.ca:80',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-    },
-    {
-        urls: 'turn:openrelay.metered.ca:443',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-    },
-    {
-        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-    }
-];
 
 const Multiplayer = {
     peer: null,
@@ -105,9 +83,7 @@ const Multiplayer = {
 
             const peerId = MULTIPLAYER_CONFIG.codePrefix + this.roomCode;
 
-            this.peer = new Peer(peerId, {
-                config: { iceServers: ICE_SERVERS }
-            });
+            this.peer = new Peer(peerId);
 
             this.peer.on('open', () => {
                 this.state = MultiplayerState.WAITING;
@@ -153,9 +129,7 @@ const Multiplayer = {
             this.state = MultiplayerState.CONNECTING;
             this.notifyConnectionChange();
 
-            this.peer = new Peer(undefined, {
-                config: { iceServers: ICE_SERVERS }
-            });
+            this.peer = new Peer();
 
             const timeout = setTimeout(() => {
                 this.handleError(new Error('Connection timeout'));
