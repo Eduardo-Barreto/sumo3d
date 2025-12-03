@@ -48,5 +48,6 @@ const KeyCode = Object.freeze({
     KEY_A: 'KeyA',
     KEY_S: 'KeyS',
     KEY_D: 'KeyD',
-    KEY_R: 'KeyR'
+    KEY_R: 'KeyR',
+    KEY_V: 'KeyV'
 });

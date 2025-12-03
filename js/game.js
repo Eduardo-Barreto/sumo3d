@@ -27,13 +27,18 @@ AFRAME.registerComponent('sumo-controls', {
         this.isMultiplayer = false;
         this.hasFallen = false;
         this.isFrozen = false;
+        this.isFPV = false;
 
         this.startPosition = new THREE.Vector3(0, POSITIONS.robotInitialY, 0.4);
         this.startRotation = new THREE.Euler(0, Math.PI, 0);
         this.prevPosition = new THREE.Vector3();
         this.pushVelocity = new THREE.Vector3();
 
-        InputHandler.init(this.resetRobot.bind(this));
+        this.playerRig = document.getElementById('player-rig');
+        this.savedCameraPos = new THREE.Vector3();
+        this.savedCameraRot = new THREE.Euler();
+
+        InputHandler.init(this.resetRobot.bind(this), this.toggleFPV.bind(this));
         this.setupMultiplayerCallbacks();
         this.resetRobot();
     },
@@ -62,6 +67,10 @@ AFRAME.registerComponent('sumo-controls', {
         this.isMultiplayer = true;
         this.hasFallen = false;
 
+        if (this.isFPV) {
+            this.toggleFPV();
+        }
+
         if (Multiplayer.isHost) {
             this.startPosition.set(0, POSITIONS.robotInitialY, 0.4);
             this.startRotation.set(0, 0, 0);
@@ -78,6 +87,10 @@ AFRAME.registerComponent('sumo-controls', {
         this.hasFallen = false;
         this.isFrozen = false;
 
+        if (this.isFPV) {
+            this.toggleFPV();
+        }
+
         this.startPosition.set(0, POSITIONS.robotInitialY, 0.4);
         this.startRotation.set(0, Math.PI, 0);
 
@@ -90,6 +103,32 @@ AFRAME.registerComponent('sumo-controls', {
 
     unfreeze() {
         this.isFrozen = false;
+    },
+
+    toggleFPV() {
+        if (!this.playerRig) return;
+
+        this.isFPV = !this.isFPV;
+
+        if (this.isFPV) {
+            this.savedCameraPos.copy(this.playerRig.object3D.position);
+            this.savedCameraRot.copy(this.playerRig.object3D.rotation);
+        } else {
+            this.playerRig.object3D.position.copy(this.savedCameraPos);
+            this.playerRig.object3D.rotation.copy(this.savedCameraRot);
+        }
+
+        UI.updateFPVIndicator(this.isFPV);
+    },
+
+    updateFPVCamera() {
+        if (!this.isFPV || !this.playerRig) return;
+
+        const robotPos = this.el.object3D.position;
+        const robotRot = this.el.object3D.rotation;
+
+        this.playerRig.object3D.position.set(robotPos.x, robotPos.y - 1.5, robotPos.z);
+        this.playerRig.object3D.rotation.set(0, robotRot.y, 0);
     },
 
     resetRobot() {
@@ -140,6 +179,7 @@ AFRAME.registerComponent('sumo-controls', {
         }
 
         this.updateMovement(dt);
+        this.updateFPVCamera();
 
         if (this.isMultiplayer) {
             this.handleRemoteRobotCollision();

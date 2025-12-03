@@ -47,7 +47,8 @@ const UI = {
             cardboardBox: document.getElementById('cardboard-box'),
             remoteRobot: document.getElementById('remote-robot'),
             countdownOverlay: document.getElementById('countdown-overlay'),
-            countdownNumber: document.getElementById('countdown-number')
+            countdownNumber: document.getElementById('countdown-number'),
+            fpvIndicator: document.getElementById('fpv-indicator')
         };
     },
 
@@ -403,6 +404,14 @@ const UI = {
             if (component) {
                 component.resetRobot();
             }
+        }
+    },
+
+    updateFPVIndicator(isActive) {
+        if (isActive) {
+            this.elements.fpvIndicator?.classList.add('active');
+        } else {
+            this.elements.fpvIndicator?.classList.remove('active');
         }
     }
 };
