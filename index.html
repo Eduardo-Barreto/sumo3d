@@ -11,9 +11,6 @@
 <body>
     <div class="hud" role="complementary" aria-label="Controles do jogo">
         <h1 class="hud-title">Robot Sumo</h1>
-        <p class="hud-specs">
-            Dohyo 154cm · Robô 20×20×8cm
-        </p>
         <ul class="hud-controls" aria-label="Lista de controles">
             <li><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> Mover</li>
             <li><span class="key">R</span> Resetar</li>
@@ -24,6 +21,7 @@
     <script src="js/constants.js"></script>
     <script src="js/input.js"></script>
     <script src="js/game.js"></script>
+    <script src="js/box.js"></script>
 
     <a-scene
         background="color: #050505"
@@ -115,6 +113,43 @@
                 color="#444"
                 material="metalness: 0.5; roughness: 0.5">
             </a-box>
+        </a-entity>
+
+        <!-- Cardboard Box -->
+        <a-entity
+            id="cardboard-box"
+            position="0 0.23 -0.4"
+            pushable-box
+            shadow="cast: true">
+            <!-- Main box -->
+            <a-box
+                width="0.20"
+                height="0.20"
+                depth="0.20"
+                color="#c4a574"
+                material="roughness: 1">
+            </a-box>
+            <!-- Tape stripe top -->
+            <a-box
+                position="0 0.101 0"
+                width="0.04"
+                height="0.002"
+                depth="0.202"
+                color="#d4a855"
+                material="shader: flat">
+            </a-box>
+            <!-- Tape stripe front -->
+            <a-box
+                position="0 0 -0.101"
+                width="0.04"
+                height="0.202"
+                depth="0.002"
+                color="#d4a855"
+                material="shader: flat">
+            </a-box>
+            <!-- Box flap lines -->
+            <a-box position="0 0.098 -0.05" width="0.198" height="0.001" depth="0.002" color="#a08050" material="shader: flat"></a-box>
+            <a-box position="0 0.098 0.05" width="0.198" height="0.001" depth="0.002" color="#a08050" material="shader: flat"></a-box>
         </a-entity>
 
         <!-- Camera -->
