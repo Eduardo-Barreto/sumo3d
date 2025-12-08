@@ -134,9 +134,9 @@ const InputHandler = {
 
         stick.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
 
-        // Normalize values to -1 to 1, with Y inverted for game coordinates
+        // Normalize values to -1 to 1
         this.joysticks[side].x = x / maxDistance;
-        this.joysticks[side].y = -y / maxDistance; // Invert Y so forward movement (up) is positive
+        this.joysticks[side].y = y / maxDistance; // Y positive = down (backward), Y negative = up (forward)
     },
 
     cleanupJoysticks() {
@@ -187,8 +187,8 @@ const InputHandler = {
         // Check if joysticks are active
         if (this.joysticks.left.active || this.joysticks.right.active) {
             return {
-                leftWheel: this.joysticks.left.y,
-                rightWheel: this.joysticks.right.y,
+                leftWheel: this.joysticks.right.y,
+                rightWheel: this.joysticks.left.y,
                 useTankControls: true
             };
         }
