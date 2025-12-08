@@ -461,11 +461,15 @@ body { margin: 0; background-color: #000; overflow: hidden; }
     bottom: 2rem;
     left: 0;
     right: 0;
-    display: flex;
+    display: none;
     justify-content: space-between;
     padding: 0 2rem;
     z-index: 999;
     pointer-events: none;
+}
+
+.joysticks-container.visible {
+    display: flex;
 }
 
 .joystick {
@@ -515,15 +519,6 @@ body { margin: 0; background-color: #000; overflow: hidden; }
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-}
-
-/* Joysticks visibility control */
-.joysticks-container {
-    display: none;
-}
-
-.joysticks-container.visible {
-    display: flex;
 }
 
 /* Mobile responsive adjustments */
