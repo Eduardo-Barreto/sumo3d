@@ -60,11 +60,13 @@ const InputHandler = {
         const base = element.querySelector('.joystick-base');
         const stick = element.querySelector('.joystick-stick');
         let touchId = null;
+        let isTouch = false;
 
         const handleStart = (e) => {
             e.preventDefault();
-            const touch = e.type.includes('touch') ? e.changedTouches[0] : e;
-            touchId = e.type.includes('touch') ? touch.identifier : 'mouse';
+            isTouch = e.type.includes('touch');
+            const touch = isTouch ? e.changedTouches[0] : e;
+            touchId = isTouch ? touch.identifier : null;
             element.classList.add('active');
             this.joysticks[side].active = true;
             this.updateJoystick(touch, base, stick, side);
@@ -75,7 +77,7 @@ const InputHandler = {
             e.preventDefault();
             
             let touch = e;
-            if (e.type.includes('touch')) {
+            if (isTouch && e.type.includes('touch')) {
                 touch = Array.from(e.changedTouches).find(t => t.identifier === touchId);
                 if (!touch) return; // Touch not found, ignore this event
             }
@@ -87,20 +89,23 @@ const InputHandler = {
             if (!this.joysticks[side].active) return;
             e.preventDefault();
             touchId = null;
+            isTouch = false;
             element.classList.remove('active');
             this.joysticks[side] = { x: 0, y: 0, active: false };
             stick.style.transform = 'translate(-50%, -50%)';
         };
 
-        base.addEventListener('touchstart', handleStart, { passive: false });
-        base.addEventListener('mousedown', handleStart);
-        window.addEventListener('touchmove', handleMove, { passive: false });
-        window.addEventListener('mousemove', handleMove);
-        window.addEventListener('touchend', handleEnd, { passive: false });
-        window.addEventListener('mouseup', handleEnd);
+        if (base) {
+            base.addEventListener('touchstart', handleStart, { passive: false });
+            base.addEventListener('mousedown', handleStart);
+            window.addEventListener('touchmove', handleMove, { passive: false });
+            window.addEventListener('mousemove', handleMove);
+            window.addEventListener('touchend', handleEnd, { passive: false });
+            window.addEventListener('mouseup', handleEnd);
 
-        // Store references for cleanup
-        element._handlers = { handleStart, handleMove, handleEnd };
+            // Store references for cleanup
+            element._handlers = { handleStart, handleMove, handleEnd, base };
+        }
     },
 
     updateJoystick(touch, base, stick, side) {
@@ -131,17 +136,16 @@ const InputHandler = {
 
         [leftJoystick, rightJoystick].forEach(element => {
             if (element && element._handlers) {
-                const base = element.querySelector('.joystick-base');
-                const { handleStart, handleMove, handleEnd } = element._handlers;
+                const { handleStart, handleMove, handleEnd, base } = element._handlers;
                 
                 if (base) {
                     base.removeEventListener('touchstart', handleStart);
                     base.removeEventListener('mousedown', handleStart);
+                    window.removeEventListener('touchmove', handleMove);
+                    window.removeEventListener('mousemove', handleMove);
+                    window.removeEventListener('touchend', handleEnd);
+                    window.removeEventListener('mouseup', handleEnd);
                 }
-                window.removeEventListener('touchmove', handleMove);
-                window.removeEventListener('mousemove', handleMove);
-                window.removeEventListener('touchend', handleEnd);
-                window.removeEventListener('mouseup', handleEnd);
             }
         });
     },
