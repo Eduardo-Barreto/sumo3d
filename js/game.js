@@ -204,7 +204,8 @@ AFRAME.registerComponent('sumo-controls', {
 
             // Calculate forward/backward movement and rotation based on wheel speeds
             const drive = (leftWheel + rightWheel) / 2;
-            const turn = (rightWheel - leftWheel) / 2;
+            // For tank controls: left wheel faster = turn left, right wheel faster = turn right
+            const turn = (leftWheel - rightWheel) / 2;
 
             rotation.y += turn * this.data.rotationSpeed * dt;
 

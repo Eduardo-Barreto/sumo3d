@@ -135,8 +135,9 @@ const InputHandler = {
         stick.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
 
         // Normalize values to -1 to 1
+        // Y coordinate matches screen coordinates: positive = down/backward, negative = up/forward
         this.joysticks[side].x = x / maxDistance;
-        this.joysticks[side].y = y / maxDistance; // Y positive = down (backward), Y negative = up (forward)
+        this.joysticks[side].y = y / maxDistance;
     },
 
     cleanupJoysticks() {
@@ -187,8 +188,8 @@ const InputHandler = {
         // Check if joysticks are active
         if (this.joysticks.left.active || this.joysticks.right.active) {
             return {
-                leftWheel: this.joysticks.right.y,
-                rightWheel: this.joysticks.left.y,
+                leftWheel: this.joysticks.left.y,
+                rightWheel: this.joysticks.right.y,
                 useTankControls: true
             };
         }
