@@ -16,6 +16,7 @@
             <li><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> Mover</li>
             <li><span class="key">V</span> Câmera FPV</li>
             <li><span class="key">R</span> Resetar</li>
+            <li class="mobile-only">🕹️ Joysticks para mobile</li>
         </ul>
         <div class="hud-status" id="status" aria-live="polite"></div>
     </div>
@@ -27,6 +28,22 @@
     <div class="score-display" id="score-display">
         <div class="score-value" id="score-value">0 × 0</div>
         <div class="score-label">Melhor de 3</div>
+    </div>
+
+    <!-- Virtual Joysticks -->
+    <div class="joysticks-container" id="joysticks-container">
+        <div class="joystick left" id="joystick-left">
+            <div class="joystick-base">
+                <div class="joystick-stick"></div>
+            </div>
+            <div class="joystick-label">Esquerda</div>
+        </div>
+        <div class="joystick right" id="joystick-right">
+            <div class="joystick-base">
+                <div class="joystick-stick"></div>
+            </div>
+            <div class="joystick-label">Direita</div>
+        </div>
     </div>
 
     <!-- Modal Multiplayer -->

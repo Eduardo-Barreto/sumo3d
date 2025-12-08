@@ -454,3 +454,97 @@ body { margin: 0; background-color: #000; overflow: hidden; }
     85% { transform: scale(1); opacity: 1; }
     100% { transform: scale(0.9); opacity: 0; }
 }
+
+/* Virtual Joysticks */
+.joysticks-container {
+    position: fixed;
+    bottom: 2rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2rem;
+    z-index: 999;
+    pointer-events: none;
+}
+
+.joystick {
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.joystick-base {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.joystick-stick {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: background 0.1s ease;
+}
+
+.joystick.active .joystick-stick {
+    background: rgba(59, 130, 246, 0.6);
+    border-color: rgba(59, 130, 246, 0.8);
+}
+
+.joystick-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Hide joysticks on desktop by default */
+@media (min-width: 769px) {
+    .joysticks-container {
+        display: none;
+    }
+    
+    .mobile-only {
+        display: none;
+    }
+}
+
+/* Show joysticks on mobile/tablet */
+@media (max-width: 768px) {
+    .joysticks-container {
+        display: flex;
+    }
+    
+    .hud {
+        top: 1rem;
+        left: 1rem;
+        padding: 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .multiplayer-btn {
+        top: 1rem;
+        right: 1rem;
+        padding: 0.6rem 1rem;
+        font-size: 0.75rem;
+    }
+}

@@ -14,6 +14,11 @@ const InputHandler = {
         right: false
     },
 
+    joysticks: {
+        left: { x: 0, y: 0, active: false },
+        right: { x: 0, y: 0, active: false }
+    },
+
     onReset: null,
     onToggleFPV: null,
     boundKeyDown: null,
@@ -27,11 +32,111 @@ const InputHandler = {
 
         window.addEventListener('keydown', this.boundKeyDown);
         window.addEventListener('keyup', this.boundKeyUp);
+        
+        this.initJoysticks();
     },
 
     cleanup() {
         window.removeEventListener('keydown', this.boundKeyDown);
         window.removeEventListener('keyup', this.boundKeyUp);
+        this.cleanupJoysticks();
+    },
+
+    initJoysticks() {
+        const leftJoystick = document.getElementById('joystick-left');
+        const rightJoystick = document.getElementById('joystick-right');
+
+        if (leftJoystick) {
+            this.setupJoystick(leftJoystick, 'left');
+        }
+        if (rightJoystick) {
+            this.setupJoystick(rightJoystick, 'right');
+        }
+    },
+
+    setupJoystick(element, side) {
+        const base = element.querySelector('.joystick-base');
+        const stick = element.querySelector('.joystick-stick');
+        let touchId = null;
+
+        const handleStart = (e) => {
+            e.preventDefault();
+            const touch = e.type.includes('touch') ? e.changedTouches[0] : e;
+            touchId = e.type.includes('touch') ? touch.identifier : 'mouse';
+            element.classList.add('active');
+            this.joysticks[side].active = true;
+            this.updateJoystick(touch, base, stick, side);
+        };
+
+        const handleMove = (e) => {
+            if (!this.joysticks[side].active) return;
+            e.preventDefault();
+            const touch = e.type.includes('touch') ? 
+                Array.from(e.changedTouches).find(t => t.identifier === touchId) || e.changedTouches[0] : e;
+            this.updateJoystick(touch, base, stick, side);
+        };
+
+        const handleEnd = (e) => {
+            if (!this.joysticks[side].active) return;
+            e.preventDefault();
+            touchId = null;
+            element.classList.remove('active');
+            this.joysticks[side] = { x: 0, y: 0, active: false };
+            stick.style.transform = 'translate(-50%, -50%)';
+        };
+
+        base.addEventListener('touchstart', handleStart, { passive: false });
+        base.addEventListener('mousedown', handleStart);
+        window.addEventListener('touchmove', handleMove, { passive: false });
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('touchend', handleEnd, { passive: false });
+        window.addEventListener('mouseup', handleEnd);
+
+        // Store references for cleanup
+        element._handlers = { handleStart, handleMove, handleEnd };
+    },
+
+    updateJoystick(touch, base, stick, side) {
+        const rect = base.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        const deltaX = touch.clientX - centerX;
+        const deltaY = touch.clientY - centerY;
+
+        const maxDistance = rect.width / 2 - 25; // 25 is half of stick size
+        const distance = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY), maxDistance);
+        const angle = Math.atan2(deltaY, deltaX);
+
+        const x = distance * Math.cos(angle);
+        const y = distance * Math.sin(angle);
+
+        stick.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+
+        // Normalize values to -1 to 1, with Y inverted (up is negative)
+        this.joysticks[side].x = x / maxDistance;
+        this.joysticks[side].y = -y / maxDistance; // Invert Y: up is positive
+    },
+
+    cleanupJoysticks() {
+        const leftJoystick = document.getElementById('joystick-left');
+        const rightJoystick = document.getElementById('joystick-right');
+
+        [leftJoystick, rightJoystick].forEach(element => {
+            if (element && element._handlers) {
+                const base = element.querySelector('.joystick-base');
+                const { handleStart, handleMove, handleEnd } = element._handlers;
+                
+                if (base) {
+                    base.removeEventListener('touchstart', handleStart);
+                    base.removeEventListener('mousedown', handleStart);
+                }
+                window.removeEventListener('touchmove', handleMove);
+                window.removeEventListener('mousemove', handleMove);
+                window.removeEventListener('touchend', handleEnd);
+                window.removeEventListener('mouseup', handleEnd);
+            }
+        });
     },
 
     handleKeyDown(event) {
@@ -55,6 +160,16 @@ const InputHandler = {
     },
 
     getInputState() {
+        // Check if joysticks are active
+        if (this.joysticks.left.active || this.joysticks.right.active) {
+            return {
+                leftWheel: this.joysticks.left.y,
+                rightWheel: this.joysticks.right.y,
+                useTankControls: true
+            };
+        }
+
+        // Fall back to keyboard/gamepad with traditional drive/turn
         let drive = 0;
         let turn = 0;
 
@@ -67,7 +182,7 @@ const InputHandler = {
         if (gamepadInput.drive !== 0) drive = gamepadInput.drive;
         if (gamepadInput.turn !== 0) turn = gamepadInput.turn;
 
-        return { drive, turn };
+        return { drive, turn, useTankControls: false };
     },
 
     pollGamepad() {

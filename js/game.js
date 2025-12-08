@@ -190,14 +190,33 @@ AFRAME.registerComponent('sumo-controls', {
     },
 
     updateMovement(dt) {
-        const { drive, turn } = InputHandler.getInputState();
+        const inputState = InputHandler.getInputState();
         const { rotation, position } = this.el.object3D;
 
-        rotation.y += turn * this.data.rotationSpeed * dt;
+        if (inputState.useTankControls) {
+            // Tank-style controls: independent wheel speeds
+            const leftWheel = inputState.leftWheel;
+            const rightWheel = inputState.rightWheel;
 
-        const speed = drive * this.data.moveSpeed;
-        position.x += Math.sin(rotation.y) * speed * dt;
-        position.z += Math.cos(rotation.y) * speed * dt;
+            // Calculate forward/backward movement and rotation based on wheel speeds
+            const drive = (leftWheel + rightWheel) / 2;
+            const turn = (rightWheel - leftWheel) / 2;
+
+            rotation.y += turn * this.data.rotationSpeed * dt;
+
+            const speed = drive * this.data.moveSpeed;
+            position.x += Math.sin(rotation.y) * speed * dt;
+            position.z += Math.cos(rotation.y) * speed * dt;
+        } else {
+            // Traditional controls: drive and turn
+            const { drive, turn } = inputState;
+
+            rotation.y += turn * this.data.rotationSpeed * dt;
+
+            const speed = drive * this.data.moveSpeed;
+            position.x += Math.sin(rotation.y) * speed * dt;
+            position.z += Math.cos(rotation.y) * speed * dt;
+        }
 
         position.y = POSITIONS.robotInitialY;
 
