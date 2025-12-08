@@ -38,7 +38,7 @@ AFRAME.registerComponent('sumo-controls', {
         this.savedCameraPos = new THREE.Vector3();
         this.savedCameraRot = new THREE.Euler();
 
-        InputHandler.init(this.resetRobot.bind(this), this.toggleFPV.bind(this));
+        InputHandler.init(this.resetRobot.bind(this), this.toggleFPV.bind(this), this.toggleJoysticks.bind(this));
         this.setupMultiplayerCallbacks();
         this.resetRobot();
     },
@@ -121,6 +121,10 @@ AFRAME.registerComponent('sumo-controls', {
         UI.updateFPVIndicator(this.isFPV);
     },
 
+    toggleJoysticks() {
+        UI.toggleJoysticks();
+    },
+
     updateFPVCamera() {
         if (!this.isFPV || !this.playerRig) return;
 
@@ -190,14 +194,33 @@ AFRAME.registerComponent('sumo-controls', {
     },
 
     updateMovement(dt) {
-        const { drive, turn } = InputHandler.getInputState();
+        const inputState = InputHandler.getInputState();
         const { rotation, position } = this.el.object3D;
 
-        rotation.y += turn * this.data.rotationSpeed * dt;
+        if (inputState.useTankControls) {
+            // Tank-style controls: independent wheel speeds
+            const leftWheel = inputState.leftWheel;
+            const rightWheel = inputState.rightWheel;
 
-        const speed = drive * this.data.moveSpeed;
-        position.x += Math.sin(rotation.y) * speed * dt;
-        position.z += Math.cos(rotation.y) * speed * dt;
+            // Calculate forward/backward movement and rotation based on wheel speeds
+            const drive = (leftWheel + rightWheel) / 2;
+            const turn = (rightWheel - leftWheel) / 2;
+
+            rotation.y += turn * this.data.rotationSpeed * dt;
+
+            const speed = drive * this.data.moveSpeed;
+            position.x += Math.sin(rotation.y) * speed * dt;
+            position.z += Math.cos(rotation.y) * speed * dt;
+        } else {
+            // Traditional controls: drive and turn
+            const { drive, turn } = inputState;
+
+            rotation.y += turn * this.data.rotationSpeed * dt;
+
+            const speed = drive * this.data.moveSpeed;
+            position.x += Math.sin(rotation.y) * speed * dt;
+            position.z += Math.cos(rotation.y) * speed * dt;
+        }
 
         position.y = POSITIONS.robotInitialY;
 

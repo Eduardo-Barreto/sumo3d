@@ -2,11 +2,13 @@
 
 const UI = {
     elements: {},
+    joysticksVisible: false,
 
     init() {
         this.cacheElements();
         this.bindEvents();
         this.setupMultiplayerCallbacks();
+        this.loadJoystickPreference();
 
         const roomCode = Multiplayer.getRoomFromURL();
         if (roomCode) {
@@ -48,7 +50,8 @@ const UI = {
             remoteRobot: document.getElementById('remote-robot'),
             countdownOverlay: document.getElementById('countdown-overlay'),
             countdownNumber: document.getElementById('countdown-number'),
-            fpvIndicator: document.getElementById('fpv-indicator')
+            fpvIndicator: document.getElementById('fpv-indicator'),
+            joysticksContainer: document.getElementById('joysticks-container')
         };
     },
 
@@ -99,6 +102,43 @@ const UI = {
                 this.hideModal();
                 this.hideMatchEnd();
             }
+        });
+
+        // Make key hint buttons clickable
+        const KEY_PRESS_DURATION = 100; // Duration in ms for simulated key press
+        const keyCodeToKey = {
+            'KeyW': 'w', 'KeyA': 'a', 'KeyS': 's', 'KeyD': 'd',
+            'KeyV': 'v', 'KeyR': 'r', 'KeyJ': 'j'
+        };
+        
+        document.querySelectorAll('.key[data-key]').forEach(keyElement => {
+            keyElement.addEventListener('click', (e) => {
+                e.preventDefault();
+                const keyCode = keyElement.getAttribute('data-key');
+                const key = keyCodeToKey[keyCode] || keyElement.textContent.toLowerCase();
+                
+                // Simulate a keydown event
+                const keydownEvent = new KeyboardEvent('keydown', {
+                    code: keyCode,
+                    key: key,
+                    bubbles: true,
+                    cancelable: true
+                });
+                window.dispatchEvent(keydownEvent);
+                
+                // For WASD keys, also simulate keyup after a short delay
+                if (['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(keyCode)) {
+                    setTimeout(() => {
+                        const keyupEvent = new KeyboardEvent('keyup', {
+                            code: keyCode,
+                            key: key,
+                            bubbles: true,
+                            cancelable: true
+                        });
+                        window.dispatchEvent(keyupEvent);
+                    }, KEY_PRESS_DURATION);
+                }
+            });
         });
     },
 
@@ -425,6 +465,32 @@ const UI = {
             this.elements.fpvIndicator?.classList.add('active');
         } else {
             this.elements.fpvIndicator?.classList.remove('active');
+        }
+    },
+
+    loadJoystickPreference() {
+        // Check if there's a saved preference, default to true on mobile, false on desktop
+        const savedPref = localStorage.getItem('joysticksVisible');
+        if (savedPref !== null) {
+            this.joysticksVisible = savedPref === 'true';
+        } else {
+            // Auto-detect: show on mobile by default
+            this.joysticksVisible = window.innerWidth <= 768;
+        }
+        this.updateJoysticksVisibility();
+    },
+
+    toggleJoysticks() {
+        this.joysticksVisible = !this.joysticksVisible;
+        localStorage.setItem('joysticksVisible', this.joysticksVisible);
+        this.updateJoysticksVisibility();
+    },
+
+    updateJoysticksVisibility() {
+        if (this.joysticksVisible) {
+            this.elements.joysticksContainer?.classList.add('visible');
+        } else {
+            this.elements.joysticksContainer?.classList.remove('visible');
         }
     }
 };
