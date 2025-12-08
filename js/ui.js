@@ -2,11 +2,13 @@
 
 const UI = {
     elements: {},
+    joysticksVisible: false,
 
     init() {
         this.cacheElements();
         this.bindEvents();
         this.setupMultiplayerCallbacks();
+        this.loadJoystickPreference();
 
         const roomCode = Multiplayer.getRoomFromURL();
         if (roomCode) {
@@ -48,7 +50,8 @@ const UI = {
             remoteRobot: document.getElementById('remote-robot'),
             countdownOverlay: document.getElementById('countdown-overlay'),
             countdownNumber: document.getElementById('countdown-number'),
-            fpvIndicator: document.getElementById('fpv-indicator')
+            fpvIndicator: document.getElementById('fpv-indicator'),
+            joysticksContainer: document.getElementById('joysticks-container')
         };
     },
 
@@ -425,6 +428,32 @@ const UI = {
             this.elements.fpvIndicator?.classList.add('active');
         } else {
             this.elements.fpvIndicator?.classList.remove('active');
+        }
+    },
+
+    loadJoystickPreference() {
+        // Check if there's a saved preference, default to true on mobile, false on desktop
+        const savedPref = localStorage.getItem('joysticksVisible');
+        if (savedPref !== null) {
+            this.joysticksVisible = savedPref === 'true';
+        } else {
+            // Auto-detect: show on mobile by default
+            this.joysticksVisible = window.innerWidth <= 768;
+        }
+        this.updateJoysticksVisibility();
+    },
+
+    toggleJoysticks() {
+        this.joysticksVisible = !this.joysticksVisible;
+        localStorage.setItem('joysticksVisible', this.joysticksVisible);
+        this.updateJoysticksVisibility();
+    },
+
+    updateJoysticksVisibility() {
+        if (this.joysticksVisible) {
+            this.elements.joysticksContainer?.classList.add('visible');
+        } else {
+            this.elements.joysticksContainer?.classList.remove('visible');
         }
     }
 };

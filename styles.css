@@ -517,23 +517,17 @@ body { margin: 0; background-color: #000; overflow: hidden; }
     letter-spacing: 0.1em;
 }
 
-/* Hide joysticks on desktop by default */
-@media (min-width: 769px) {
-    .joysticks-container {
-        display: none;
-    }
-    
-    .mobile-only {
-        display: none;
-    }
+/* Joysticks visibility control */
+.joysticks-container {
+    display: none;
 }
 
-/* Show joysticks on mobile/tablet */
+.joysticks-container.visible {
+    display: flex;
+}
+
+/* Mobile responsive adjustments */
 @media (max-width: 768px) {
-    .joysticks-container {
-        display: flex;
-    }
-    
     .hud {
         top: 1rem;
         left: 1rem;

@@ -23,12 +23,14 @@ const InputHandler = {
 
     onReset: null,
     onToggleFPV: null,
+    onToggleJoysticks: null,
     boundKeyDown: null,
     boundKeyUp: null,
 
-    init(onResetCallback, onToggleFPVCallback) {
+    init(onResetCallback, onToggleFPVCallback, onToggleJoysticksCallback) {
         this.onReset = onResetCallback;
         this.onToggleFPV = onToggleFPVCallback;
+        this.onToggleJoysticks = onToggleJoysticksCallback;
         this.boundKeyDown = this.handleKeyDown.bind(this);
         this.boundKeyUp = this.handleKeyUp.bind(this);
 
@@ -169,6 +171,7 @@ const InputHandler = {
         if (code === KeyCode.ARROW_RIGHT || code === KeyCode.KEY_D) this.keys.right = true;
         if (code === KeyCode.KEY_R && this.onReset && !Multiplayer.isConnected()) this.onReset();
         if (code === KeyCode.KEY_V && this.onToggleFPV) this.onToggleFPV();
+        if (code === KeyCode.KEY_J && this.onToggleJoysticks) this.onToggleJoysticks();
     },
 
     handleKeyUp(event) {

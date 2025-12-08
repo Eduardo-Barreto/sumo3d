@@ -38,7 +38,7 @@ AFRAME.registerComponent('sumo-controls', {
         this.savedCameraPos = new THREE.Vector3();
         this.savedCameraRot = new THREE.Euler();
 
-        InputHandler.init(this.resetRobot.bind(this), this.toggleFPV.bind(this));
+        InputHandler.init(this.resetRobot.bind(this), this.toggleFPV.bind(this), this.toggleJoysticks.bind(this));
         this.setupMultiplayerCallbacks();
         this.resetRobot();
     },
@@ -119,6 +119,10 @@ AFRAME.registerComponent('sumo-controls', {
         }
 
         UI.updateFPVIndicator(this.isFPV);
+    },
+
+    toggleJoysticks() {
+        UI.toggleJoysticks();
     },
 
     updateFPVCamera() {
