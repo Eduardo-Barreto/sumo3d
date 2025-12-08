@@ -146,11 +146,11 @@ const InputHandler = {
                 const { handleStart, handleMove, handleEnd, base } = element._handlers;
                 
                 if (base) {
-                    base.removeEventListener('touchstart', handleStart);
+                    base.removeEventListener('touchstart', handleStart, { passive: false });
                     base.removeEventListener('mousedown', handleStart);
-                    window.removeEventListener('touchmove', handleMove);
+                    window.removeEventListener('touchmove', handleMove, { passive: false });
                     window.removeEventListener('mousemove', handleMove);
-                    window.removeEventListener('touchend', handleEnd);
+                    window.removeEventListener('touchend', handleEnd, { passive: false });
                     window.removeEventListener('mouseup', handleEnd);
                 }
                 
