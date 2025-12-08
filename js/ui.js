@@ -103,6 +103,36 @@ const UI = {
                 this.hideMatchEnd();
             }
         });
+
+        // Make key hint buttons clickable
+        document.querySelectorAll('.key[data-key]').forEach(keyElement => {
+            keyElement.addEventListener('click', (e) => {
+                e.preventDefault();
+                const keyCode = keyElement.getAttribute('data-key');
+                
+                // Simulate a keydown event
+                const keydownEvent = new KeyboardEvent('keydown', {
+                    code: keyCode,
+                    key: keyElement.textContent,
+                    bubbles: true,
+                    cancelable: true
+                });
+                window.dispatchEvent(keydownEvent);
+                
+                // For WASD keys, also simulate keyup after a short delay
+                if (['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(keyCode)) {
+                    setTimeout(() => {
+                        const keyupEvent = new KeyboardEvent('keyup', {
+                            code: keyCode,
+                            key: keyElement.textContent,
+                            bubbles: true,
+                            cancelable: true
+                        });
+                        window.dispatchEvent(keyupEvent);
+                    }, 100);
+                }
+            });
+        });
     },
 
     setupMultiplayerCallbacks() {
