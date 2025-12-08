@@ -105,15 +105,22 @@ const UI = {
         });
 
         // Make key hint buttons clickable
+        const KEY_PRESS_DURATION = 100; // Duration in ms for simulated key press
+        const keyCodeToKey = {
+            'KeyW': 'w', 'KeyA': 'a', 'KeyS': 's', 'KeyD': 'd',
+            'KeyV': 'v', 'KeyR': 'r', 'KeyJ': 'j'
+        };
+        
         document.querySelectorAll('.key[data-key]').forEach(keyElement => {
             keyElement.addEventListener('click', (e) => {
                 e.preventDefault();
                 const keyCode = keyElement.getAttribute('data-key');
+                const key = keyCodeToKey[keyCode] || keyElement.textContent.toLowerCase();
                 
                 // Simulate a keydown event
                 const keydownEvent = new KeyboardEvent('keydown', {
                     code: keyCode,
-                    key: keyElement.textContent,
+                    key: key,
                     bubbles: true,
                     cancelable: true
                 });
@@ -124,12 +131,12 @@ const UI = {
                     setTimeout(() => {
                         const keyupEvent = new KeyboardEvent('keyup', {
                             code: keyCode,
-                            key: keyElement.textContent,
+                            key: key,
                             bubbles: true,
                             cancelable: true
                         });
                         window.dispatchEvent(keyupEvent);
-                    }, 100);
+                    }, KEY_PRESS_DURATION);
                 }
             });
         });
