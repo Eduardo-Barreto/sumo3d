@@ -6,6 +6,8 @@ function applyDeadzone(value, deadzone) {
     return sign * (Math.abs(value) - deadzone) / (1 - deadzone);
 }
 
+const JOYSTICK_STICK_RADIUS = 25; // Half of the joystick stick size (50px / 2)
+
 const InputHandler = {
     keys: {
         forward: false,
@@ -71,8 +73,13 @@ const InputHandler = {
         const handleMove = (e) => {
             if (!this.joysticks[side].active) return;
             e.preventDefault();
-            const touch = e.type.includes('touch') ? 
-                Array.from(e.changedTouches).find(t => t.identifier === touchId) || e.changedTouches[0] : e;
+            
+            let touch = e;
+            if (e.type.includes('touch')) {
+                touch = Array.from(e.changedTouches).find(t => t.identifier === touchId);
+                if (!touch) return; // Touch not found, ignore this event
+            }
+            
             this.updateJoystick(touch, base, stick, side);
         };
 
@@ -104,7 +111,7 @@ const InputHandler = {
         const deltaX = touch.clientX - centerX;
         const deltaY = touch.clientY - centerY;
 
-        const maxDistance = rect.width / 2 - 25; // 25 is half of stick size
+        const maxDistance = rect.width / 2 - JOYSTICK_STICK_RADIUS;
         const distance = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY), maxDistance);
         const angle = Math.atan2(deltaY, deltaX);
 
