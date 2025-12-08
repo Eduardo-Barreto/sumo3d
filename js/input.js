@@ -78,7 +78,14 @@ const InputHandler = {
             
             let touch = e;
             if (isTouch && e.type.includes('touch')) {
-                touch = Array.from(e.changedTouches).find(t => t.identifier === touchId);
+                // Find the touch that matches our stored identifier
+                touch = null;
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    if (e.changedTouches[i].identifier === touchId) {
+                        touch = e.changedTouches[i];
+                        break;
+                    }
+                }
                 if (!touch) return; // Touch not found, ignore this event
             }
             
@@ -146,6 +153,9 @@ const InputHandler = {
                     window.removeEventListener('touchend', handleEnd);
                     window.removeEventListener('mouseup', handleEnd);
                 }
+                
+                // Clear the handlers reference to prevent memory leaks
+                delete element._handlers;
             }
         });
     },
