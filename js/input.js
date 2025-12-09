@@ -134,9 +134,10 @@ const InputHandler = {
 
         stick.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
 
-        // Normalize values to -1 to 1, with Y inverted for game coordinates
+        // Normalize values to -1 to 1
+        // Y coordinate matches screen coordinates: positive = down/backward, negative = up/forward
         this.joysticks[side].x = x / maxDistance;
-        this.joysticks[side].y = -y / maxDistance; // Invert Y so forward movement (up) is positive
+        this.joysticks[side].y = y / maxDistance;
     },
 
     cleanupJoysticks() {
