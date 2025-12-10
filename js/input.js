@@ -185,7 +185,9 @@ const InputHandler = {
     },
 
     getInputState() {
-        // Check if joysticks are active
+        const gamepadInput = this.pollGamepad();
+        if (gamepadInput.useTankControls) return gamepadInput;
+
         if (this.joysticks.left.active || this.joysticks.right.active) {
             return {
                 leftWheel: this.joysticks.left.y,
@@ -194,40 +196,50 @@ const InputHandler = {
             };
         }
 
-        // Fall back to keyboard/gamepad with traditional drive/turn
         let drive = 0;
         let turn = 0;
-
         if (this.keys.forward) drive -= 1;
         if (this.keys.backward) drive += 1;
         if (this.keys.left) turn += 1;
         if (this.keys.right) turn -= 1;
 
-        const gamepadInput = this.pollGamepad();
-        if (gamepadInput.drive !== 0) drive = gamepadInput.drive;
-        if (gamepadInput.turn !== 0) turn = gamepadInput.turn;
-
         return { drive, turn, useTankControls: false };
     },
 
-    pollGamepad() {
-        if (!navigator.getGamepads) return { drive: 0, turn: 0 };
+    pollGamepadButtons() {
+        if (!navigator.getGamepads) return;
 
         try {
             const gamepads = navigator.getGamepads();
-
             for (const gamepad of gamepads) {
                 if (!gamepad) continue;
+                const aPressed = gamepad.buttons[0]?.pressed;
+                if (aPressed && !this._aButtonWasPressed && this.onReset && !Multiplayer.isConnected()) {
+                    this.onReset();
+                }
+                this._aButtonWasPressed = aPressed;
+                return;
+            }
+        } catch (_error) {}
+    },
 
-                const drive = applyDeadzone(gamepad.axes[1] ?? 0, INPUT.gamepadDeadzone);
-                const turn = -applyDeadzone(gamepad.axes[0] ?? 0, INPUT.gamepadDeadzone);
+    pollGamepad() {
+        if (!navigator.getGamepads) return { useTankControls: false };
 
-                if (drive !== 0 || turn !== 0) return { drive, turn };
+        try {
+            const gamepads = navigator.getGamepads();
+            for (const gamepad of gamepads) {
+                if (!gamepad) continue;
+                const leftWheel = applyDeadzone(gamepad.axes[1] ?? 0, INPUT.gamepadDeadzone);
+                const rightWheel = applyDeadzone(gamepad.axes[3] ?? 0, INPUT.gamepadDeadzone);
+                if (leftWheel !== 0 || rightWheel !== 0) {
+                    return { leftWheel, rightWheel, useTankControls: true };
+                }
             }
         } catch (_error) {
-            return { drive: 0, turn: 0 };
+            return { useTankControls: false };
         }
 
-        return { drive: 0, turn: 0 };
+        return { useTankControls: false };
     }
 };

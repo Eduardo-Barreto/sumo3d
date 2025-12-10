@@ -151,6 +151,8 @@ AFRAME.registerComponent('sumo-controls', {
     },
 
     tick(_time, timeDelta) {
+        InputHandler.pollGamepadButtons();
+
         if (this.isFrozen) return;
 
         const { position } = this.el.object3D;
@@ -198,22 +200,29 @@ AFRAME.registerComponent('sumo-controls', {
         const { rotation, position } = this.el.object3D;
 
         if (inputState.useTankControls) {
-            // Tank-style controls: independent wheel speeds
-            const leftWheel = inputState.leftWheel;
-            const rightWheel = inputState.rightWheel;
+            const { leftWheel, rightWheel } = inputState;
+            const wheelBase = SUMO_SPECS.robot.widthM;
 
-            // Calculate forward/backward movement and rotation based on wheel speeds
-            const drive = (leftWheel + rightWheel) / 2;
-            // For tank controls: left wheel faster = turn left, right wheel faster = turn right
-            const turn = (leftWheel - rightWheel) / 2;
+            const angularVel = (leftWheel - rightWheel) * this.data.rotationSpeed * 1.5;
+            const linearVel = (leftWheel + rightWheel) / 2 * this.data.moveSpeed * 1.3;
 
-            rotation.y += turn * this.data.rotationSpeed * dt;
+            let pivotOffset = 0;
+            if (Math.abs(angularVel) > 0.01) {
+                const wheelDiff = Math.abs(leftWheel) - Math.abs(rightWheel);
+                pivotOffset = -wheelDiff * wheelBase * 0.5;
+            }
 
-            const speed = drive * this.data.moveSpeed;
-            position.x += Math.sin(rotation.y) * speed * dt;
-            position.z += Math.cos(rotation.y) * speed * dt;
+            rotation.y += angularVel * dt;
+            position.x += Math.sin(rotation.y) * linearVel * dt;
+            position.z += Math.cos(rotation.y) * linearVel * dt;
+
+            if (Math.abs(pivotOffset) > 0.001 && Math.abs(angularVel) > 0.01) {
+                const pivotX = Math.cos(rotation.y) * pivotOffset;
+                const pivotZ = -Math.sin(rotation.y) * pivotOffset;
+                position.x += pivotX * (1 - Math.cos(angularVel * dt)) + pivotZ * Math.sin(angularVel * dt);
+                position.z += pivotZ * (1 - Math.cos(angularVel * dt)) - pivotX * Math.sin(angularVel * dt);
+            }
         } else {
-            // Traditional controls: drive and turn
             const { drive, turn } = inputState;
 
             rotation.y += turn * this.data.rotationSpeed * dt;
