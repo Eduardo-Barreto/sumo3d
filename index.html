@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Robot Sumo VR - All Japan Style</title>
     <meta name="description" content="Experiência imersiva de pilotar um robô sumô no estilo All Japan Robot Sumo Tournament">
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -184,14 +184,15 @@
         loading-screen="dotsColor: #0ff; backgroundColor: #000">
 
         <!-- Lighting -->
-        <a-entity light="type: ambient; color: #BBB; intensity: 0.3"></a-entity>
+        <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
+        <a-entity light="type: directional; intensity: 2; color: #fff; castShadow: true" position="0 5 0"></a-entity>
         <a-entity
-            light="type: spot; angle: 35; penumbra: 0.3; castShadow: true; intensity: 1.5; color: #fff"
+            light="type: spot; angle: 45; penumbra: 0.3; castShadow: true; intensity: 4; color: #fff"
             position="0 4 0"
             rotation="-90 0 0">
         </a-entity>
-        <a-entity light="type: point; intensity: 0.4; color: #88f; distance: 8" position="-2 3 -2"></a-entity>
-        <a-entity light="type: point; intensity: 0.3; color: #f88; distance: 8" position="2 3 2"></a-entity>
+        <a-entity light="type: point; intensity: 1.5; color: #88f; distance: 8" position="-2 3 -2"></a-entity>
+        <a-entity light="type: point; intensity: 1.2; color: #f88; distance: 8" position="2 3 2"></a-entity>
 
         <!-- Arena -->
         <a-entity id="arena" position="0 0 0">
@@ -240,6 +241,7 @@
             position="0 0.17 0.4"
             rotation="0 180 0"
             sumo-controls
+            xr-input-monitor
             shadow="cast: true">
             <a-box
                 class="robot-body"

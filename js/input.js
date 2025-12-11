@@ -21,6 +21,11 @@ const InputHandler = {
         right: { x: 0, y: 0, active: false }
     },
 
+    vrThumbsticks: {
+        left: { x: 0, y: 0 },
+        right: { x: 0, y: 0 }
+    },
+
     onReset: null,
     onToggleFPV: null,
     onToggleJoysticks: null,
@@ -184,9 +189,23 @@ const InputHandler = {
         if (code === KeyCode.ARROW_RIGHT || code === KeyCode.KEY_D) this.keys.right = false;
     },
 
+    updateVRThumbstick(hand, x, y) {
+        this.vrThumbsticks[hand] = { x, y };
+    },
+
     getInputState() {
         const gamepadInput = this.pollGamepad();
         if (gamepadInput.useTankControls) return gamepadInput;
+
+        const vrLeft = this.vrThumbsticks.left;
+        const vrRight = this.vrThumbsticks.right;
+        if (Math.abs(vrLeft.y) > INPUT.gamepadDeadzone || Math.abs(vrRight.y) > INPUT.gamepadDeadzone) {
+            return {
+                leftWheel: this.discretize(-vrLeft.y),
+                rightWheel: this.discretize(-vrRight.y),
+                useTankControls: true
+            };
+        }
 
         if (this.joysticks.left.active || this.joysticks.right.active) {
             return {
@@ -254,3 +273,40 @@ const InputHandler = {
         return value > 0 ? 1 : -1;
     }
 };
+
+AFRAME.registerComponent('xr-input-monitor', {
+    init() {
+        this.el.sceneEl.addEventListener('enter-vr', () => { this.inVR = true; });
+        this.el.sceneEl.addEventListener('exit-vr', () => { this.inVR = false; });
+        this.inVR = false;
+        this._aButtonWasPressed = false;
+    },
+
+    tick() {
+        if (!this.inVR) return;
+
+        const xrSession = this.el.sceneEl.renderer?.xr?.getSession?.();
+        if (!xrSession) return;
+
+        for (const source of xrSession.inputSources) {
+            const gamepad = source.gamepad;
+            if (!gamepad) continue;
+
+            const hand = source.handedness;
+            const thumbstickX = gamepad.axes[2] ?? 0;
+            const thumbstickY = gamepad.axes[3] ?? 0;
+
+            if (hand === 'left') {
+                InputHandler.updateVRThumbstick('right', thumbstickX, -thumbstickY);
+            } else if (hand === 'right') {
+                InputHandler.updateVRThumbstick('left', thumbstickX, -thumbstickY);
+
+                const aPressed = gamepad.buttons[4]?.pressed;
+                if (aPressed && !this._aButtonWasPressed && InputHandler.onReset && !Multiplayer.isConnected()) {
+                    InputHandler.onReset();
+                }
+                this._aButtonWasPressed = aPressed;
+            }
+        }
+    }
+});
