@@ -184,15 +184,8 @@
         loading-screen="dotsColor: #0ff; backgroundColor: #000">
 
         <!-- Lighting -->
-        <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
-        <a-entity light="type: directional; intensity: 2; color: #fff; castShadow: true" position="0 5 0"></a-entity>
-        <a-entity
-            light="type: spot; angle: 45; penumbra: 0.3; castShadow: true; intensity: 4; color: #fff"
-            position="0 4 0"
-            rotation="-90 0 0">
-        </a-entity>
-        <a-entity light="type: point; intensity: 1.5; color: #88f; distance: 8" position="-2 3 -2"></a-entity>
-        <a-entity light="type: point; intensity: 1.2; color: #f88; distance: 8" position="2 3 2"></a-entity>
+        <a-entity light="type: directional; intensity: 3; color: #fff" position="1 3 2"></a-entity>
+        <a-entity light="type: directional; intensity: 2; color: #fff" position="-1 3 2"></a-entity>
 
         <!-- Arena -->
         <a-entity id="arena" position="0 0 0">
@@ -224,8 +217,8 @@
             <a-box position="0 0.132 0.15" width="0.20" depth="0.02" height="0.001" color="#A52" material="shader: flat"></a-box>
 
             <!-- Safety zones -->
-            <a-box position="0.95 0.025 0" width="1.8" depth="4" height="0.05" color="#600" shadow="receive: true"></a-box>
-            <a-box position="-0.95 0.025 0" width="1.8" depth="4" height="0.05" color="#006" shadow="receive: true"></a-box>
+            <a-box position="0.95 0.025 0" width="1.8" depth="4" height="0.05" material="color: #aa0000; emissive: #440000" shadow="receive: true"></a-box>
+            <a-box position="-0.95 0.025 0" width="1.8" depth="4" height="0.05" material="color: #0000aa; emissive: #000044" shadow="receive: true"></a-box>
 
             <!-- Side ramps -->
             <a-box position="1.5 -0.3 0" rotation="0 0 -20" width="0.8" depth="3" height="0.05" color="#400"></a-box>
