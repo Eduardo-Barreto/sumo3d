@@ -29,7 +29,7 @@ AFRAME.registerComponent('sumo-controls', {
         this.isFrozen = false;
         this.isFPV = false;
 
-        this.startPosition = new THREE.Vector3(0, POSITIONS.robotInitialY, 0.4);
+        this.startPosition = new THREE.Vector3(0, POSITIONS.robotInitialY, 0.55);
         this.startRotation = new THREE.Euler(0, 0, 0);
         this.prevPosition = new THREE.Vector3();
         this.pushVelocity = new THREE.Vector3();
@@ -72,7 +72,7 @@ AFRAME.registerComponent('sumo-controls', {
         }
 
         if (Multiplayer.isHost) {
-            this.startPosition.set(0, POSITIONS.robotInitialY, 0.4);
+            this.startPosition.set(0, POSITIONS.robotInitialY, 0.55);
             this.startRotation.set(0, 0, 0);
         } else {
             this.startPosition.set(0, POSITIONS.robotInitialY, -0.4);
@@ -91,7 +91,7 @@ AFRAME.registerComponent('sumo-controls', {
             this.toggleFPV();
         }
 
-        this.startPosition.set(0, POSITIONS.robotInitialY, 0.4);
+        this.startPosition.set(0, POSITIONS.robotInitialY, 0.55);
         this.startRotation.set(0, 0, 0);
 
         this.resetRobot();
