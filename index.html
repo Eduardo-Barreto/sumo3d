@@ -41,6 +41,14 @@
             <span class="settings-value" id="value-slow-speed">0.3</span>
             <button class="settings-reset" id="reset-slow-speed" data-default="0.3">↺</button>
         </div>
+        <div class="settings-item">
+            <label>Obstáculo (Single Player)</label>
+            <select id="setting-obstacle">
+                <option value="box">Caixa</option>
+                <option value="cones">Cones</option>
+                <option value="none">Nenhum</option>
+            </select>
+        </div>
     </div>
 
     <div class="fpv-indicator" id="fpv-indicator">FPV</div>
@@ -328,6 +336,30 @@
             </a-box>
             <a-box position="0 0.098 -0.05" width="0.198" height="0.001" depth="0.002" color="#a08050" material="shader: flat"></a-box>
             <a-box position="0 0.098 0.05" width="0.198" height="0.001" depth="0.002" color="#a08050" material="shader: flat"></a-box>
+        </a-entity>
+
+        <!-- Training Cones (hidden by default) -->
+        <a-entity id="training-cones" visible="false">
+            <a-cone
+                class="training-cone"
+                position="0 0.195 -0.30"
+                radius-bottom="0.06"
+                radius-top="0.015"
+                height="0.12"
+                color="#ff6600"
+                material="roughness: 0.8"
+                shadow="cast: true">
+            </a-cone>
+            <a-cone
+                class="training-cone"
+                position="0 0.195 0.30"
+                radius-bottom="0.06"
+                radius-top="0.015"
+                height="0.12"
+                color="#ff6600"
+                material="roughness: 0.8"
+                shadow="cast: true">
+            </a-cone>
         </a-entity>
 
         <!-- Camera -->

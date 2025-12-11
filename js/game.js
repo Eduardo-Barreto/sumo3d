@@ -2,6 +2,11 @@
 
 const ROBOT_COLLISION_DISTANCE = 0.22;
 const PUSH_STRENGTH = 0.08;
+const CONE_COLLISION_RADIUS = 0.16;
+const CONE_POSITIONS = [
+    { x: 0, z: -0.30 },
+    { x: 0, z: 0.30 }
+];
 
 function distanceFromCenter(x, z) {
     return Math.sqrt(x * x + z * z);
@@ -247,6 +252,27 @@ AFRAME.registerComponent('sumo-controls', {
             updateStatusDisplay(`Borda: ${percentage}%`, false);
         } else {
             updateStatusDisplay('', false);
+        }
+
+        this.handleConeCollision();
+    },
+
+    handleConeCollision() {
+        const trainingCones = document.getElementById('training-cones');
+        if (!trainingCones || !trainingCones.getAttribute('visible')) return;
+
+        const pos = this.el.object3D.position;
+
+        for (const cone of CONE_POSITIONS) {
+            const dx = pos.x - cone.x;
+            const dz = pos.z - cone.z;
+            const dist = Math.sqrt(dx * dx + dz * dz);
+
+            if (dist < CONE_COLLISION_RADIUS && dist > 0.001) {
+                const overlap = CONE_COLLISION_RADIUS - dist;
+                pos.x += (dx / dist) * overlap;
+                pos.z += (dz / dist) * overlap;
+            }
         }
     },
 

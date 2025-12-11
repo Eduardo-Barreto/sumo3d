@@ -60,7 +60,9 @@ const UI = {
             valueNormalSpeed: document.getElementById('value-normal-speed'),
             valueSlowSpeed: document.getElementById('value-slow-speed'),
             resetNormalSpeed: document.getElementById('reset-normal-speed'),
-            resetSlowSpeed: document.getElementById('reset-slow-speed')
+            resetSlowSpeed: document.getElementById('reset-slow-speed'),
+            settingObstacle: document.getElementById('setting-obstacle'),
+            trainingCones: document.getElementById('training-cones')
         };
     },
 
@@ -133,6 +135,10 @@ const UI = {
         });
         this.elements.resetSlowSpeed?.addEventListener('click', () => {
             this.resetSetting(this.elements.settingSlowSpeed, this.elements.valueSlowSpeed, this.elements.resetSlowSpeed, 0.3, 'slowSpeed');
+        });
+
+        this.elements.settingObstacle?.addEventListener('change', (e) => {
+            this.setObstacle(e.target.value);
         });
 
         // Make key hint buttons clickable
@@ -522,6 +528,11 @@ const UI = {
         if (valueEl) valueEl.textContent = defaultValue;
         if (resetBtn) resetBtn.classList.remove('visible');
         Settings[settingKey] = defaultValue;
+    },
+
+    setObstacle(type) {
+        this.elements.cardboardBox?.setAttribute('visible', type === 'box');
+        this.elements.trainingCones?.setAttribute('visible', type === 'cones');
     },
 
     loadJoystickPreference() {
