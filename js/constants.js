@@ -52,3 +52,8 @@ const KeyCode = Object.freeze({
     KEY_V: 'KeyV',
     KEY_J: 'KeyJ'
 });
+
+const Settings = {
+    normalSpeed: 1.5,
+    slowSpeed: 0.3
+};

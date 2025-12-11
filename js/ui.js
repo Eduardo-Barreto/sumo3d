@@ -51,7 +51,16 @@ const UI = {
             countdownOverlay: document.getElementById('countdown-overlay'),
             countdownNumber: document.getElementById('countdown-number'),
             fpvIndicator: document.getElementById('fpv-indicator'),
-            joysticksContainer: document.getElementById('joysticks-container')
+            joysticksContainer: document.getElementById('joysticks-container'),
+            settingsBtn: document.getElementById('settings-btn'),
+            settingsPanel: document.getElementById('settings-panel'),
+            settingsClose: document.getElementById('settings-close'),
+            settingNormalSpeed: document.getElementById('setting-normal-speed'),
+            settingSlowSpeed: document.getElementById('setting-slow-speed'),
+            valueNormalSpeed: document.getElementById('value-normal-speed'),
+            valueSlowSpeed: document.getElementById('value-slow-speed'),
+            resetNormalSpeed: document.getElementById('reset-normal-speed'),
+            resetSlowSpeed: document.getElementById('reset-slow-speed')
         };
     },
 
@@ -101,7 +110,29 @@ const UI = {
             if (e.key === 'Escape') {
                 this.hideModal();
                 this.hideMatchEnd();
+                this.hideSettings();
             }
+        });
+
+        this.elements.settingsBtn?.addEventListener('click', () => this.toggleSettings());
+        this.elements.settingsClose?.addEventListener('click', () => this.hideSettings());
+
+        this.elements.settingNormalSpeed?.addEventListener('input', (e) => {
+            Settings.normalSpeed = parseFloat(e.target.value);
+            this.elements.valueNormalSpeed.textContent = e.target.value;
+            this.updateResetButton(this.elements.resetNormalSpeed, e.target.value, '1');
+        });
+        this.elements.settingSlowSpeed?.addEventListener('input', (e) => {
+            Settings.slowSpeed = parseFloat(e.target.value);
+            this.elements.valueSlowSpeed.textContent = e.target.value;
+            this.updateResetButton(this.elements.resetSlowSpeed, e.target.value, '0.3');
+        });
+
+        this.elements.resetNormalSpeed?.addEventListener('click', () => {
+            this.resetSetting(this.elements.settingNormalSpeed, this.elements.valueNormalSpeed, this.elements.resetNormalSpeed, 1.0, 'normalSpeed');
+        });
+        this.elements.resetSlowSpeed?.addEventListener('click', () => {
+            this.resetSetting(this.elements.settingSlowSpeed, this.elements.valueSlowSpeed, this.elements.resetSlowSpeed, 0.3, 'slowSpeed');
         });
 
         // Make key hint buttons clickable
@@ -466,6 +497,31 @@ const UI = {
         } else {
             this.elements.fpvIndicator?.classList.remove('active');
         }
+    },
+
+    toggleSettings() {
+        this.elements.settingsPanel?.classList.toggle('active');
+    },
+
+    hideSettings() {
+        this.elements.settingsPanel?.classList.remove('active');
+    },
+
+    updateResetButton(btn, currentValue, defaultValue) {
+        if (!btn) return;
+        if (parseFloat(currentValue) !== parseFloat(defaultValue)) {
+            btn.classList.add('visible');
+        } else {
+            btn.classList.remove('visible');
+        }
+    },
+
+    resetSetting(input, valueEl, resetBtn, defaultValue, settingKey) {
+        if (!input) return;
+        input.value = defaultValue;
+        if (valueEl) valueEl.textContent = defaultValue;
+        if (resetBtn) resetBtn.classList.remove('visible');
+        Settings[settingKey] = defaultValue;
     },
 
     loadJoystickPreference() {

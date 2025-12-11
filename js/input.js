@@ -230,10 +230,16 @@ const InputHandler = {
             const gamepads = navigator.getGamepads();
             for (const gamepad of gamepads) {
                 if (!gamepad) continue;
-                const leftWheel = applyDeadzone(gamepad.axes[1] ?? 0, INPUT.gamepadDeadzone);
-                const rightWheel = applyDeadzone(gamepad.axes[3] ?? 0, INPUT.gamepadDeadzone);
+
+                const leftRaw = gamepad.axes[3] ?? 0;
+                const rightRaw = gamepad.axes[1] ?? 0;
+                const triggerPressed = (gamepad.buttons[6]?.value > 0.5) || (gamepad.buttons[7]?.value > 0.5);
+
+                const leftWheel = this.discretize(leftRaw);
+                const rightWheel = this.discretize(rightRaw);
+
                 if (leftWheel !== 0 || rightWheel !== 0) {
-                    return { leftWheel, rightWheel, useTankControls: true };
+                    return { leftWheel, rightWheel, triggerPressed, useTankControls: true };
                 }
             }
         } catch (_error) {
@@ -241,5 +247,10 @@ const InputHandler = {
         }
 
         return { useTankControls: false };
+    },
+
+    discretize(value) {
+        if (Math.abs(value) < INPUT.gamepadDeadzone) return 0;
+        return value > 0 ? 1 : -1;
     }
 };

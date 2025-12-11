@@ -30,7 +30,7 @@ AFRAME.registerComponent('sumo-controls', {
         this.isFPV = false;
 
         this.startPosition = new THREE.Vector3(0, POSITIONS.robotInitialY, 0.4);
-        this.startRotation = new THREE.Euler(0, Math.PI, 0);
+        this.startRotation = new THREE.Euler(0, 0, 0);
         this.prevPosition = new THREE.Vector3();
         this.pushVelocity = new THREE.Vector3();
 
@@ -92,7 +92,7 @@ AFRAME.registerComponent('sumo-controls', {
         }
 
         this.startPosition.set(0, POSITIONS.robotInitialY, 0.4);
-        this.startRotation.set(0, Math.PI, 0);
+        this.startRotation.set(0, 0, 0);
 
         this.resetRobot();
     },
@@ -200,27 +200,30 @@ AFRAME.registerComponent('sumo-controls', {
         const { rotation, position } = this.el.object3D;
 
         if (inputState.useTankControls) {
-            const { leftWheel, rightWheel } = inputState;
+            const { leftWheel, rightWheel, triggerPressed } = inputState;
             const wheelBase = SUMO_SPECS.robot.widthM;
+            const speedMult = triggerPressed ? Settings.slowSpeed : Settings.normalSpeed;
+            const maxSpeed = this.data.moveSpeed * speedMult;
 
-            const angularVel = (leftWheel - rightWheel) * this.data.rotationSpeed * 1.5;
-            const linearVel = (leftWheel + rightWheel) / 2 * this.data.moveSpeed * 1.3;
+            const vLeft = leftWheel * maxSpeed;
+            const vRight = rightWheel * maxSpeed;
 
-            let pivotOffset = 0;
-            if (Math.abs(angularVel) > 0.01) {
-                const wheelDiff = Math.abs(leftWheel) - Math.abs(rightWheel);
-                pivotOffset = -wheelDiff * wheelBase * 0.5;
-            }
+            const linearVel = (vLeft + vRight) / 2;
+            const angularVel = (vRight - vLeft) / wheelBase;
 
-            rotation.y += angularVel * dt;
-            position.x += Math.sin(rotation.y) * linearVel * dt;
-            position.z += Math.cos(rotation.y) * linearVel * dt;
-
-            if (Math.abs(pivotOffset) > 0.001 && Math.abs(angularVel) > 0.01) {
-                const pivotX = Math.cos(rotation.y) * pivotOffset;
-                const pivotZ = -Math.sin(rotation.y) * pivotOffset;
-                position.x += pivotX * (1 - Math.cos(angularVel * dt)) + pivotZ * Math.sin(angularVel * dt);
-                position.z += pivotZ * (1 - Math.cos(angularVel * dt)) - pivotX * Math.sin(angularVel * dt);
+            if (Math.abs(angularVel) > 0.001) {
+                const radius = linearVel / angularVel;
+                const dTheta = angularVel * dt;
+                const sinY = Math.sin(rotation.y);
+                const cosY = Math.cos(rotation.y);
+                const fwd = radius * Math.sin(dTheta);
+                const lat = -radius * (1 - Math.cos(dTheta));
+                position.x += lat * cosY + fwd * sinY;
+                position.z += -lat * sinY + fwd * cosY;
+                rotation.y += dTheta;
+            } else {
+                position.x += Math.sin(rotation.y) * linearVel * dt;
+                position.z += Math.cos(rotation.y) * linearVel * dt;
             }
         } else {
             const { drive, turn } = inputState;
