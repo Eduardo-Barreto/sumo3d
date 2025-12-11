@@ -190,8 +190,8 @@ const InputHandler = {
 
         if (this.joysticks.left.active || this.joysticks.right.active) {
             return {
-                leftWheel: this.joysticks.left.y,
-                rightWheel: this.joysticks.right.y,
+                leftWheel: this.joysticks.right.y,
+                rightWheel: this.joysticks.left.y,
                 useTankControls: true
             };
         }
