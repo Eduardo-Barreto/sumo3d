@@ -50,7 +50,10 @@ const KeyCode = Object.freeze({
     KEY_D: 'KeyD',
     KEY_R: 'KeyR',
     KEY_V: 'KeyV',
-    KEY_J: 'KeyJ'
+    KEY_J: 'KeyJ',
+    KEY_Z: 'KeyZ',
+    KEY_G: 'KeyG',
+    KEY_B: 'KeyB'
 });
 
 const Settings = {
