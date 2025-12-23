@@ -46,8 +46,15 @@
             <select id="setting-obstacle">
                 <option value="box">Caixa</option>
                 <option value="cones">Cones</option>
+                <option value="laser">Laser</option>
                 <option value="none">Nenhum</option>
             </select>
+        </div>
+        <div class="settings-item">
+            <label>Dificuldade do Obstáculo</label>
+            <input type="range" id="setting-obstacle-difficulty" min="1" max="10" step="1" value="5">
+            <span class="settings-value" id="value-obstacle-difficulty">5</span>
+            <button class="settings-reset" id="reset-obstacle-difficulty" data-default="5">↺</button>
         </div>
     </div>
 
@@ -175,6 +182,7 @@
     <script src="js/remote-robot.js"></script>
     <script src="js/game.js"></script>
     <script src="js/box.js"></script>
+    <script src="js/laser.js"></script>
     <script src="js/ui.js"></script>
 
     <a-scene
@@ -303,34 +311,34 @@
         <!-- Cardboard Box -->
         <a-entity
             id="cardboard-box"
-            position="0 0.23 -0.4"
+            position="0 0.21 -0.4"
             pushable-box
             shadow="cast: true">
             <a-box
-                width="0.20"
-                height="0.20"
-                depth="0.20"
+                width="0.16"
+                height="0.16"
+                depth="0.16"
                 color="#c4a574"
                 material="roughness: 1">
             </a-box>
             <a-box
-                position="0 0.101 0"
-                width="0.04"
+                position="0 0.081 0"
+                width="0.032"
                 height="0.002"
-                depth="0.202"
+                depth="0.162"
                 color="#d4a855"
                 material="shader: flat">
             </a-box>
             <a-box
-                position="0 0 -0.101"
-                width="0.04"
-                height="0.202"
+                position="0 0 -0.081"
+                width="0.032"
+                height="0.162"
                 depth="0.002"
                 color="#d4a855"
                 material="shader: flat">
             </a-box>
-            <a-box position="0 0.098 -0.05" width="0.198" height="0.001" depth="0.002" color="#a08050" material="shader: flat"></a-box>
-            <a-box position="0 0.098 0.05" width="0.198" height="0.001" depth="0.002" color="#a08050" material="shader: flat"></a-box>
+            <a-box position="0 0.078 -0.04" width="0.158" height="0.001" depth="0.002" color="#a08050" material="shader: flat"></a-box>
+            <a-box position="0 0.078 0.04" width="0.158" height="0.001" depth="0.002" color="#a08050" material="shader: flat"></a-box>
         </a-entity>
 
         <!-- Training Cones (hidden by default) -->
@@ -355,6 +363,18 @@
                 material="roughness: 0.8"
                 shadow="cast: true">
             </a-cone>
+        </a-entity>
+
+        <!-- Laser Chase (hidden by default) -->
+        <a-entity
+            id="laser-target"
+            position="0 0.14 -0.3"
+            laser-chase
+            visible="false">
+            <a-sphere
+                radius="0.025"
+                color="#ff0044"
+            </a-sphere>
         </a-entity>
 
         <!-- Camera -->

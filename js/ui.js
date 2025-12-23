@@ -62,7 +62,11 @@ const UI = {
             resetNormalSpeed: document.getElementById('reset-normal-speed'),
             resetSlowSpeed: document.getElementById('reset-slow-speed'),
             settingObstacle: document.getElementById('setting-obstacle'),
-            trainingCones: document.getElementById('training-cones')
+            trainingCones: document.getElementById('training-cones'),
+            laserTarget: document.getElementById('laser-target'),
+            settingObstacleDifficulty: document.getElementById('setting-obstacle-difficulty'),
+            valueObstacleDifficulty: document.getElementById('value-obstacle-difficulty'),
+            resetObstacleDifficulty: document.getElementById('reset-obstacle-difficulty')
         };
     },
 
@@ -139,6 +143,25 @@ const UI = {
 
         this.elements.settingObstacle?.addEventListener('change', (e) => {
             this.setObstacle(e.target.value);
+        });
+
+        this.elements.settingObstacleDifficulty?.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            Settings.obstacleDifficulty = value;
+            this.elements.valueObstacleDifficulty.textContent = value;
+            this.updateResetButton(this.elements.resetObstacleDifficulty, value, '5');
+            this.applyObstacleDifficulty();
+        });
+
+        this.elements.resetObstacleDifficulty?.addEventListener('click', () => {
+            this.resetSetting(
+                this.elements.settingObstacleDifficulty,
+                this.elements.valueObstacleDifficulty,
+                this.elements.resetObstacleDifficulty,
+                5,
+                'obstacleDifficulty'
+            );
+            this.applyObstacleDifficulty();
         });
 
         // Make key hint buttons clickable
@@ -336,6 +359,12 @@ const UI = {
         if (this.elements.cardboardBox) {
             this.elements.cardboardBox.setAttribute('visible', false);
         }
+        if (this.elements.trainingCones) {
+            this.elements.trainingCones.setAttribute('visible', false);
+        }
+        if (this.elements.laserTarget) {
+            this.elements.laserTarget.setAttribute('visible', false);
+        }
 
         if (this.elements.remoteRobot) {
             this.elements.remoteRobot.setAttribute('visible', true);
@@ -377,9 +406,8 @@ const UI = {
     },
 
     disableMultiplayer() {
-        if (this.elements.cardboardBox) {
-            this.elements.cardboardBox.setAttribute('visible', true);
-        }
+        const obstacleType = this.elements.settingObstacle?.value || 'box';
+        this.setObstacle(obstacleType);
 
         if (this.elements.remoteRobot) {
             this.elements.remoteRobot.setAttribute('visible', false);
@@ -533,6 +561,17 @@ const UI = {
     setObstacle(type) {
         this.elements.cardboardBox?.setAttribute('visible', type === 'box');
         this.elements.trainingCones?.setAttribute('visible', type === 'cones');
+        this.elements.laserTarget?.setAttribute('visible', type === 'laser');
+    },
+
+    applyObstacleDifficulty() {
+        const difficulty = Settings.obstacleDifficulty;
+        const coneDistance = 0.15 + (10 - difficulty) * 0.04;
+        const cones = this.elements.trainingCones?.querySelectorAll('.training-cone');
+        if (cones && cones.length >= 2) {
+            cones[0].setAttribute('position', `0 0.195 ${-coneDistance}`);
+            cones[1].setAttribute('position', `0 0.195 ${coneDistance}`);
+        }
     },
 
     loadJoystickPreference() {

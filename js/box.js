@@ -1,12 +1,18 @@
 'use strict';
 
 const BOX_CONFIG = Object.freeze({
-    size: 0.20,
-    respawnDelayMs: 1500,
-    collisionDistance: 0.24,
+    size: 0.16,
+    minRespawnDelayMs: 10,
+    maxRespawnDelayMs: 1500,
+    collisionDistance: 0.20,
     spawnMinRadius: 0.25,
     spawnMaxRadius: 0.55
 });
+
+function getBoxRespawnDelay() {
+    const difficulty = Settings.obstacleDifficulty;
+    return BOX_CONFIG.maxRespawnDelayMs - (difficulty - 1) * ((BOX_CONFIG.maxRespawnDelayMs - BOX_CONFIG.minRespawnDelayMs) / 9);
+}
 
 AFRAME.registerComponent('pushable-box', {
     schema: {
@@ -96,7 +102,7 @@ AFRAME.registerComponent('pushable-box', {
 
     scheduleRespawn() {
         this.state = 'waiting';
-        setTimeout(() => this.respawn(), BOX_CONFIG.respawnDelayMs);
+        setTimeout(() => this.respawn(), getBoxRespawnDelay());
     },
 
     respawn() {

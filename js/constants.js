@@ -58,5 +58,6 @@ const KeyCode = Object.freeze({
 
 const Settings = {
     normalSpeed: 1.5,
-    slowSpeed: 0.3
+    slowSpeed: 0.3,
+    obstacleDifficulty: 5
 };
