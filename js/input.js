@@ -13,11 +13,7 @@ const InputHandler = {
         forward: false,
         backward: false,
         left: false,
-        right: false,
-        leftForward: false,
-        leftBackward: false,
-        rightForward: false,
-        rightBackward: false
+        right: false
     },
 
     joysticks: {
@@ -177,12 +173,8 @@ const InputHandler = {
 
         if (code === KeyCode.ARROW_UP || code === KeyCode.KEY_W) this.keys.forward = true;
         if (code === KeyCode.ARROW_DOWN || code === KeyCode.KEY_S) this.keys.backward = true;
-        if (code === KeyCode.ARROW_LEFT) this.keys.left = true;
+        if (code === KeyCode.ARROW_LEFT || code === KeyCode.KEY_A) this.keys.left = true;
         if (code === KeyCode.ARROW_RIGHT || code === KeyCode.KEY_D) this.keys.right = true;
-        if (code === KeyCode.KEY_A) this.keys.leftForward = true;
-        if (code === KeyCode.KEY_Z) this.keys.leftBackward = true;
-        if (code === KeyCode.KEY_G) this.keys.rightForward = true;
-        if (code === KeyCode.KEY_B) this.keys.rightBackward = true;
         if (code === KeyCode.KEY_R && this.onReset && !Multiplayer.isConnected()) this.onReset();
         if (code === KeyCode.KEY_V && this.onToggleFPV) this.onToggleFPV();
         if (code === KeyCode.KEY_J && this.onToggleJoysticks) this.onToggleJoysticks();
@@ -193,12 +185,8 @@ const InputHandler = {
 
         if (code === KeyCode.ARROW_UP || code === KeyCode.KEY_W) this.keys.forward = false;
         if (code === KeyCode.ARROW_DOWN || code === KeyCode.KEY_S) this.keys.backward = false;
-        if (code === KeyCode.ARROW_LEFT) this.keys.left = false;
+        if (code === KeyCode.ARROW_LEFT || code === KeyCode.KEY_A) this.keys.left = false;
         if (code === KeyCode.ARROW_RIGHT || code === KeyCode.KEY_D) this.keys.right = false;
-        if (code === KeyCode.KEY_A) this.keys.leftForward = false;
-        if (code === KeyCode.KEY_Z) this.keys.leftBackward = false;
-        if (code === KeyCode.KEY_G) this.keys.rightForward = false;
-        if (code === KeyCode.KEY_B) this.keys.rightBackward = false;
     },
 
     updateVRThumbstick(hand, x, y) {
@@ -225,18 +213,6 @@ const InputHandler = {
                 rightWheel: this.joysticks.left.y,
                 useTankControls: true
             };
-        }
-
-        const tankKeysActive = this.keys.leftForward || this.keys.leftBackward ||
-                               this.keys.rightForward || this.keys.rightBackward;
-        if (tankKeysActive) {
-            let leftWheel = 0;
-            let rightWheel = 0;
-            if (this.keys.leftForward) rightWheel -= 1;
-            if (this.keys.leftBackward) rightWheel += 1;
-            if (this.keys.rightForward) leftWheel -= 1;
-            if (this.keys.rightBackward) leftWheel += 1;
-            return { leftWheel, rightWheel, useTankControls: true };
         }
 
         let drive = 0;
