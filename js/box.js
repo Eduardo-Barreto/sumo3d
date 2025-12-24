@@ -24,11 +24,14 @@ AFRAME.registerComponent('pushable-box', {
         this.fallVelocity = 0;
         this.baseY = this.el.object3D.position.y;
         this.prevTargetPos = new THREE.Vector3();
+        this.prevBoxPos = new THREE.Vector3();
+        this.fallMomentum = new THREE.Vector3();
 
         const target = this.data.target;
         if (target) {
             this.prevTargetPos.copy(target.object3D.position);
         }
+        this.prevBoxPos.copy(this.el.object3D.position);
     },
 
     tick(_time, timeDelta) {
@@ -40,8 +43,15 @@ AFRAME.registerComponent('pushable-box', {
             return;
         }
 
+        if (this.state === 'grounded') {
+            this.handleCollisionGrounded();
+            return;
+        }
+
+        const posBefore = this.el.object3D.position.clone();
         this.handleCollision();
         this.checkBoundary();
+        this.prevBoxPos.copy(posBefore);
     },
 
     handleCollision() {
@@ -81,6 +91,10 @@ AFRAME.registerComponent('pushable-box', {
         const distFromCenter = Math.sqrt(pos.x * pos.x + pos.z * pos.z);
 
         if (distFromCenter > POSITIONS.boundaryRadius) {
+            const dx = pos.x - this.prevBoxPos.x;
+            const dz = pos.z - this.prevBoxPos.z;
+            const momentumScale = 45;
+            this.fallMomentum.set(dx * momentumScale, 0, dz * momentumScale);
             this.state = 'falling';
             this.fallVelocity = 0;
         }
@@ -90,14 +104,48 @@ AFRAME.registerComponent('pushable-box', {
         const pos = this.el.object3D.position;
         const rot = this.el.object3D.rotation;
 
+        pos.x += this.fallMomentum.x * dt;
+        pos.z += this.fallMomentum.z * dt;
+
         this.fallVelocity += PHYSICS.gravity * dt;
         pos.y -= this.fallVelocity * dt;
         rot.x += 3 * dt;
         rot.z += 2 * dt;
 
-        if (pos.y < POSITIONS.fallThresholdY) {
+        const boxLandedY = SAFETY_ZONE.surfaceY + (BOX_CONFIG.size / 2);
+        if (pos.y <= boxLandedY) {
+            pos.y = boxLandedY;
+            rot.x = 0;
+            rot.z = 0;
+            this.fallVelocity = 0;
+            this.fallMomentum.set(0, 0, 0);
+            this.groundedY = boxLandedY;
+            this.state = 'grounded';
             this.scheduleRespawn();
         }
+    },
+
+    handleCollisionGrounded() {
+        const target = this.data.target;
+        if (!target) return;
+
+        const targetPos = target.object3D.position;
+        const boxPos = this.el.object3D.position;
+
+        const dx = boxPos.x - targetPos.x;
+        const dz = boxPos.z - targetPos.z;
+        const dist = Math.sqrt(dx * dx + dz * dz);
+
+        if (dist < BOX_CONFIG.collisionDistance && dist > 0.001) {
+            const moveX = targetPos.x - this.prevTargetPos.x;
+            const moveZ = targetPos.z - this.prevTargetPos.z;
+
+            boxPos.x += moveX;
+            boxPos.z += moveZ;
+            boxPos.y = this.groundedY;
+        }
+
+        this.prevTargetPos.copy(targetPos);
     },
 
     scheduleRespawn() {

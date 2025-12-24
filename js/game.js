@@ -38,6 +38,7 @@ AFRAME.registerComponent('sumo-controls', {
         this.startRotation = new THREE.Euler(0, 0, 0);
         this.prevPosition = new THREE.Vector3();
         this.pushVelocity = new THREE.Vector3();
+        this.fallMomentum = new THREE.Vector3();
 
         this.playerRig = document.getElementById('player-rig');
         this.savedCameraPos = new THREE.Vector3();
@@ -189,6 +190,11 @@ AFRAME.registerComponent('sumo-controls', {
             return;
         }
 
+        if (this.status === GameStatus.LANDED) {
+            return;
+        }
+
+        const posBefore = this.el.object3D.position.clone();
         this.updateMovement(dt);
         this.updateFPVCamera();
 
@@ -198,6 +204,7 @@ AFRAME.registerComponent('sumo-controls', {
         }
 
         this.checkBoundary();
+        this.prevPosition.copy(posBefore);
     },
 
     updateMovement(dt) {
@@ -327,6 +334,10 @@ AFRAME.registerComponent('sumo-controls', {
         const dist = distanceFromCenter(position.x, position.z);
 
         if (dist > POSITIONS.boundaryRadius) {
+            const dx = position.x - this.prevPosition.x;
+            const dz = position.z - this.prevPosition.z;
+            const momentumScale = 30;
+            this.fallMomentum.set(dx * momentumScale, 0, dz * momentumScale);
             this.status = GameStatus.FALLING;
             this.fallVelocity = 0;
         }
@@ -335,9 +346,24 @@ AFRAME.registerComponent('sumo-controls', {
     updateFalling(dt) {
         const { position, rotation } = this.el.object3D;
 
+        position.x += this.fallMomentum.x * dt;
+        position.z += this.fallMomentum.z * dt;
+
         this.fallVelocity += PHYSICS.gravity * dt;
         position.y -= this.fallVelocity * dt;
         rotation.x += PHYSICS.fallRotationSpeed * dt;
+
+        this.updateFPVCamera();
+
+        if (position.y <= SAFETY_ZONE.robotLandedY) {
+            position.y = SAFETY_ZONE.robotLandedY;
+            rotation.x = 0;
+            this.status = GameStatus.LANDED;
+            this.fallVelocity = 0;
+            this.fallMomentum.set(0, 0, 0);
+            updateStatusDisplay('Caiu! Pressione R para resetar', true);
+            return;
+        }
 
         updateStatusDisplay('CAINDO!', true);
     }

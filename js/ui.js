@@ -569,8 +569,8 @@ const UI = {
         const coneDistance = 0.15 + (10 - difficulty) * 0.04;
         const cones = this.elements.trainingCones?.querySelectorAll('.training-cone');
         if (cones && cones.length >= 2) {
-            cones[0].setAttribute('position', `0 0.195 ${-coneDistance}`);
-            cones[1].setAttribute('position', `0 0.195 ${coneDistance}`);
+            cones[0].setAttribute('position', `0 0.26 ${-coneDistance}`);
+            cones[1].setAttribute('position', `0 0.26 ${coneDistance}`);
         }
     },
 

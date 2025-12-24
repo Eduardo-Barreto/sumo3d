@@ -31,9 +31,9 @@
         </div>
         <div class="settings-item">
             <label>Velocidade Normal</label>
-            <input type="range" id="setting-normal-speed" min="0.5" max="2" step="0.1" value="1.5">
-            <span class="settings-value" id="value-normal-speed">1.5</span>
-            <button class="settings-reset" id="reset-normal-speed" data-default="1.5">↺</button>
+            <input type="range" id="setting-normal-speed" min="0.5" max="2" step="0.1" value="1.7">
+            <span class="settings-value" id="value-normal-speed">1.7</span>
+            <button class="settings-reset" id="reset-normal-speed" data-default="1.7">↺</button>
         </div>
         <div class="settings-item">
             <label>Velocidade Lenta (Trigger)</label>
@@ -201,9 +201,9 @@
             <a-cylinder
                 id="dohyo"
                 radius="0.77"
-                height="0.13"
+                height="0.20"
                 segments-radial="64"
-                position="0 0.065 0"
+                position="0 0.10 0"
                 color="#111"
                 material="roughness: 0.9"
                 shadow="receive: true">
@@ -214,15 +214,15 @@
                 radius-inner="0.72"
                 radius-outer="0.77"
                 segments-theta="64"
-                position="0 0.131 0"
+                position="0 0.201 0"
                 rotation="-90 0 0"
                 color="#FFF"
                 material="shader: flat">
             </a-ring>
 
             <!-- Shikiri lines (starting lines) -->
-            <a-box position="0 0.132 -0.15" width="0.20" depth="0.02" height="0.001" color="#A52" material="shader: flat"></a-box>
-            <a-box position="0 0.132 0.15" width="0.20" depth="0.02" height="0.001" color="#A52" material="shader: flat"></a-box>
+            <a-box position="0 0.202 -0.15" width="0.20" depth="0.02" height="0.001" color="#A52" material="shader: flat"></a-box>
+            <a-box position="0 0.202 0.15" width="0.20" depth="0.02" height="0.001" color="#A52" material="shader: flat"></a-box>
 
             <!-- Safety zones -->
             <a-box position="0.95 0.025 0" width="1.8" depth="4" height="0.05" material="color: #aa0000; emissive: #440000" shadow="receive: true"></a-box>
@@ -239,7 +239,7 @@
         <!-- Local Robot (Host: Sul) -->
         <a-entity
             id="robot-player"
-            position="0 0.17 0.4"
+            position="0 0.24 0.4"
             rotation="0 180 0"
             sumo-controls
             xr-input-monitor
@@ -275,7 +275,7 @@
         <!-- Remote Robot (Guest: Norte) - Hidden by default -->
         <a-entity
             id="remote-robot"
-            position="0 0.17 -0.4"
+            position="0 0.24 -0.4"
             rotation="0 0 0"
             remote-robot="enabled: false"
             visible="false"
@@ -311,7 +311,7 @@
         <!-- Cardboard Box -->
         <a-entity
             id="cardboard-box"
-            position="0 0.21 -0.4"
+            position="0 0.28 -0.4"
             pushable-box
             shadow="cast: true">
             <a-box
@@ -345,7 +345,7 @@
         <a-entity id="training-cones" visible="false">
             <a-cone
                 class="training-cone"
-                position="0 0.195 -0.30"
+                position="0 0.26 -0.30"
                 radius-bottom="0.06"
                 radius-top="0.015"
                 height="0.12"
@@ -355,7 +355,7 @@
             </a-cone>
             <a-cone
                 class="training-cone"
-                position="0 0.195 0.30"
+                position="0 0.26 0.30"
                 radius-bottom="0.06"
                 radius-top="0.015"
                 height="0.12"
@@ -368,7 +368,7 @@
         <!-- Laser Chase (hidden by default) -->
         <a-entity
             id="laser-target"
-            position="0 0.14 -0.3"
+            position="0 0.21 -0.3"
             laser-chase
             visible="false">
             <a-sphere

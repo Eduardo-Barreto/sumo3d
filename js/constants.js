@@ -7,7 +7,7 @@
 const SUMO_SPECS = Object.freeze({
     dohyo: {
         radiusM: 0.77,
-        heightM: 0.13
+        heightM: 0.20
     },
     robot: {
         widthM: 0.20,
@@ -36,7 +36,13 @@ const POSITIONS = Object.freeze({
 
 const GameStatus = Object.freeze({
     PLAYING: 'playing',
-    FALLING: 'falling'
+    FALLING: 'falling',
+    LANDED: 'landed'
+});
+
+const SAFETY_ZONE = Object.freeze({
+    surfaceY: 0.05,
+    robotLandedY: 0.05 + (SUMO_SPECS.robot.heightM / 2)
 });
 
 const KeyCode = Object.freeze({
@@ -57,7 +63,7 @@ const KeyCode = Object.freeze({
 });
 
 const Settings = {
-    normalSpeed: 1.5,
+    normalSpeed: 1.7,
     slowSpeed: 0.3,
     obstacleDifficulty: 5
 };
