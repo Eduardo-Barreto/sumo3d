@@ -217,12 +217,12 @@ const UI = {
 
         Multiplayer.onRemoteFall = () => {
             this.flashScore();
-            const name = Multiplayer.remoteNickname || 'Oponente';
-            this.showRoundResult(`${name} caiu!`);
+            const name = Multiplayer.remoteNickname || 'Opponent';
+            this.showRoundResult(`${name} fell!`);
         };
 
         Multiplayer.onLocalFall = () => {
-            this.showRoundResult('Você caiu!');
+            this.showRoundResult('You fell!');
         };
 
         Multiplayer.onRemoteRematch = () => {
@@ -281,7 +281,7 @@ const UI = {
         const code = this.elements.joinCodeInput?.value?.trim();
         if (!code || code.length < 6) return;
 
-        const nickname = this.elements.joinNicknameInput?.value?.trim() || 'Jogador';
+        const nickname = this.elements.joinNicknameInput?.value?.trim() || 'Player';
         Multiplayer.localNickname = nickname;
 
         this.showSection('joining');
@@ -311,10 +311,10 @@ const UI = {
         navigator.clipboard.writeText(url).then(() => {
             const btn = this.elements.btnCopyUrl;
             if (btn) {
-                btn.textContent = 'Copiado!';
+                btn.textContent = 'Copied!';
                 btn.classList.add('copied');
                 setTimeout(() => {
-                    btn.textContent = 'Copiar Link';
+                    btn.textContent = 'Copy Link';
                     btn.classList.remove('copied');
                 }, 2000);
             }
@@ -340,7 +340,7 @@ const UI = {
 
         if (state === MultiplayerState.CONNECTED) {
             btn?.classList.add('connected');
-            if (btn) btn.textContent = 'Conectado';
+            if (btn) btn.textContent = 'Connected';
 
             this.showSection('connected');
             this.hideModal();
@@ -351,7 +351,7 @@ const UI = {
 
             this.disableMultiplayer();
         } else if (state === MultiplayerState.WAITING) {
-            if (btn) btn.textContent = 'Aguardando...';
+            if (btn) btn.textContent = 'Waiting...';
         }
     },
 
@@ -457,7 +457,7 @@ const UI = {
 
     showMatchEnd(isVictory) {
         if (this.elements.matchResult) {
-            this.elements.matchResult.textContent = isVictory ? 'Vitória!' : 'Derrota!';
+            this.elements.matchResult.textContent = isVictory ? 'Victory!' : 'Defeat!';
             this.elements.matchResult.className = 'match-result ' + (isVictory ? 'victory' : 'defeat');
         }
         this.elements.matchEndOverlay?.classList.add('active');

@@ -179,7 +179,7 @@ AFRAME.registerComponent('sumo-controls', {
                     }
                 }, MULTIPLAYER_CONFIG.resetDelayMs);
             }
-            updateStatusDisplay('Caiu!', true);
+            updateStatusDisplay('Fell!', true);
             return;
         }
 
@@ -256,7 +256,7 @@ AFRAME.registerComponent('sumo-controls', {
             const percentage = Math.min(100, Math.round(
                 ((dist - dangerZone) / (POSITIONS.boundaryRadius - dangerZone)) * 100
             ));
-            updateStatusDisplay(`Borda: ${percentage}%`, false);
+            updateStatusDisplay(`Edge: ${percentage}%`, false);
         } else {
             updateStatusDisplay('', false);
         }
@@ -361,10 +361,10 @@ AFRAME.registerComponent('sumo-controls', {
             this.status = GameStatus.LANDED;
             this.fallVelocity = 0;
             this.fallMomentum.set(0, 0, 0);
-            updateStatusDisplay('Caiu! Pressione R para resetar', true);
+            updateStatusDisplay('Fell! Press R to reset', true);
             return;
         }
 
-        updateStatusDisplay('CAINDO!', true);
+        updateStatusDisplay('FALLING!', true);
     }
 });

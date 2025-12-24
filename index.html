@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Robot Sumo VR - All Japan Style</title>
-    <meta name="description" content="Experiência imersiva de pilotar um robô sumô no estilo All Japan Robot Sumo Tournament">
+    <meta name="description" content="Immersive experience of piloting a sumo robot in All Japan Robot Sumo Tournament style">
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="hud" role="complementary" aria-label="Controles do jogo">
+    <div class="hud" role="complementary" aria-label="Game controls">
         <h1 class="hud-title">Robot Sumo</h1>
-        <ul class="hud-controls" aria-label="Lista de controles">
-            <li><span class="key" data-key="KeyW">W</span><span class="key" data-key="KeyA">A</span><span class="key" data-key="KeyS">S</span><span class="key" data-key="KeyD">D</span> Mover</li>
-            <li><span class="key" data-key="KeyV">V</span> Câmera FPV</li>
-            <li><span class="key" data-key="KeyR">R</span> Resetar</li>
+        <ul class="hud-controls" aria-label="Controls list">
+            <li><span class="key" data-key="KeyW">W</span><span class="key" data-key="KeyA">A</span><span class="key" data-key="KeyS">S</span><span class="key" data-key="KeyD">D</span> Move</li>
+            <li><span class="key" data-key="KeyV">V</span> FPV Camera</li>
+            <li><span class="key" data-key="KeyR">R</span> Reset</li>
             <li><span class="key" data-key="KeyJ">J</span> Toggle Joysticks</li>
         </ul>
         <div class="hud-status" id="status" aria-live="polite"></div>
@@ -26,32 +26,32 @@
 
     <div class="settings-panel" id="settings-panel">
         <div class="settings-header">
-            <span>Configurações</span>
+            <span>Settings</span>
             <button class="settings-close" id="settings-close">×</button>
         </div>
         <div class="settings-item">
-            <label>Velocidade Normal</label>
+            <label>Normal Speed</label>
             <input type="range" id="setting-normal-speed" min="0.5" max="2" step="0.1" value="1.7">
             <span class="settings-value" id="value-normal-speed">1.7</span>
             <button class="settings-reset" id="reset-normal-speed" data-default="1.7">↺</button>
         </div>
         <div class="settings-item">
-            <label>Velocidade Lenta (Trigger)</label>
+            <label>Slow Speed (Trigger)</label>
             <input type="range" id="setting-slow-speed" min="0.1" max="1" step="0.1" value="0.3">
             <span class="settings-value" id="value-slow-speed">0.3</span>
             <button class="settings-reset" id="reset-slow-speed" data-default="0.3">↺</button>
         </div>
         <div class="settings-item">
-            <label>Obstáculo (Single Player)</label>
+            <label>Obstacle (Single Player)</label>
             <select id="setting-obstacle">
-                <option value="box">Caixa</option>
+                <option value="box">Box</option>
                 <option value="cones">Cones</option>
                 <option value="laser">Laser</option>
-                <option value="none">Nenhum</option>
+                <option value="none">None</option>
             </select>
         </div>
         <div class="settings-item">
-            <label>Dificuldade do Obstáculo</label>
+            <label>Obstacle Difficulty</label>
             <input type="range" id="setting-obstacle-difficulty" min="1" max="10" step="1" value="5">
             <span class="settings-value" id="value-obstacle-difficulty">5</span>
             <button class="settings-reset" id="reset-obstacle-difficulty" data-default="5">↺</button>
@@ -62,7 +62,7 @@
 
     <div class="score-display" id="score-display">
         <div class="score-value" id="score-value">0 × 0</div>
-        <div class="score-label">Melhor de 3</div>
+        <div class="score-label">Best of 3</div>
     </div>
 
     <!-- Virtual Joysticks -->
@@ -71,13 +71,13 @@
             <div class="joystick-base">
                 <div class="joystick-stick"></div>
             </div>
-            <div class="joystick-label">Esquerda</div>
+            <div class="joystick-label">Left</div>
         </div>
         <div class="joystick right" id="joystick-right">
             <div class="joystick-base">
                 <div class="joystick-stick"></div>
             </div>
-            <div class="joystick-label">Direita</div>
+            <div class="joystick-label">Right</div>
         </div>
     </div>
 
@@ -89,8 +89,8 @@
             <!-- Menu -->
             <div class="modal-section active" id="section-menu">
                 <div class="modal-buttons">
-                    <button class="modal-btn primary" id="btn-create">Criar Sala</button>
-                    <button class="modal-btn" id="btn-join">Entrar em Sala</button>
+                    <button class="modal-btn primary" id="btn-create">Create Room</button>
+                    <button class="modal-btn" id="btn-join">Join Room</button>
                 </div>
             </div>
 
@@ -100,26 +100,26 @@
                     type="text"
                     class="nickname-input"
                     id="create-nickname-input"
-                    placeholder="Seu nome"
+                    placeholder="Your name"
                     maxlength="12"
                     autocomplete="off"
                     spellcheck="false">
                 <div class="modal-buttons">
-                    <button class="modal-btn primary" id="btn-create-submit">Criar Sala</button>
-                    <button class="modal-btn btn-back">Voltar</button>
+                    <button class="modal-btn primary" id="btn-create-submit">Create Room</button>
+                    <button class="modal-btn btn-back">Back</button>
                 </div>
             </div>
 
             <!-- Create Room - Step 2: Waiting -->
             <div class="modal-section" id="section-create-waiting">
                 <div class="room-code">
-                    <div class="room-code-label">Código da Sala</div>
+                    <div class="room-code-label">Room Code</div>
                     <div class="room-code-value" id="room-code-value">------</div>
-                    <button class="copy-url-btn" id="btn-copy-url">Copiar Link</button>
+                    <button class="copy-url-btn" id="btn-copy-url">Copy Link</button>
                 </div>
-                <p class="waiting-text">Aguardando jogador...</p>
+                <p class="waiting-text">Waiting for player...</p>
                 <div class="modal-buttons">
-                    <button class="modal-btn btn-back">Cancelar</button>
+                    <button class="modal-btn btn-back">Cancel</button>
                 </div>
             </div>
 
@@ -129,7 +129,7 @@
                     type="text"
                     class="nickname-input"
                     id="join-nickname-input"
-                    placeholder="Seu nome"
+                    placeholder="Your name"
                     maxlength="12"
                     autocomplete="off"
                     spellcheck="false">
@@ -137,29 +137,29 @@
                     type="text"
                     class="join-input"
                     id="join-code-input"
-                    placeholder="CÓDIGO DA SALA"
+                    placeholder="ROOM CODE"
                     maxlength="6"
                     autocomplete="off"
                     spellcheck="false">
                 <div class="modal-buttons">
-                    <button class="modal-btn primary" id="btn-join-submit">Entrar</button>
-                    <button class="modal-btn btn-back">Voltar</button>
+                    <button class="modal-btn primary" id="btn-join-submit">Join</button>
+                    <button class="modal-btn btn-back">Back</button>
                 </div>
             </div>
 
             <!-- Joining -->
             <div class="modal-section" id="section-joining">
-                <p class="waiting-text">Conectando...</p>
+                <p class="waiting-text">Connecting...</p>
             </div>
 
             <!-- Connected -->
             <div class="modal-section" id="section-connected">
                 <div class="room-code">
-                    <div class="room-code-label">Conectado</div>
+                    <div class="room-code-label">Connected</div>
                     <div class="score-value" id="modal-score">0 × 0</div>
                 </div>
                 <div class="modal-buttons">
-                    <button class="modal-btn danger" id="btn-disconnect">Desconectar</button>
+                    <button class="modal-btn danger" id="btn-disconnect">Disconnect</button>
                 </div>
             </div>
         </div>
@@ -167,8 +167,8 @@
 
     <!-- Match End Overlay -->
     <div class="match-end-overlay" id="match-end-overlay">
-        <div class="match-result" id="match-result">Vitória!</div>
-        <button class="modal-btn primary" id="btn-rematch">Jogar Novamente</button>
+        <div class="match-result" id="match-result">Victory!</div>
+        <button class="modal-btn primary" id="btn-rematch">Play Again</button>
     </div>
 
     <!-- Countdown Overlay -->
