@@ -2,7 +2,7 @@
 
 const LASER_CONFIG = Object.freeze({
     catchDistance: 0.12,
-    minSpeedRatio: 0.2,
+    minSpeedRatio: 0,
     maxSpeedRatio: 1.1,
     spawnMinRadius: 0.15,
     spawnMaxRadius: 0.60,
