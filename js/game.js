@@ -35,7 +35,9 @@ AFRAME.registerComponent('sumo-controls', {
         this.isFPV = false;
 
         this.startPosition = new THREE.Vector3(0, POSITIONS.robotInitialY, 0.55);
+        this.defaultStartPosition = new THREE.Vector3(0, POSITIONS.robotInitialY, 0.55);
         this.startRotation = new THREE.Euler(0, 0, 0);
+        this.defaultStartRotation = new THREE.Euler(0, 0, 0);
         this.prevPosition = new THREE.Vector3();
         this.pushVelocity = new THREE.Vector3();
         this.fallMomentum = new THREE.Vector3();
@@ -44,7 +46,7 @@ AFRAME.registerComponent('sumo-controls', {
         this.savedCameraPos = new THREE.Vector3();
         this.savedCameraRot = new THREE.Euler();
 
-        InputHandler.init(this.resetRobot.bind(this), this.toggleFPV.bind(this), this.toggleJoysticks.bind(this));
+        InputHandler.init(this.resetRobot.bind(this), this.toggleFPV.bind(this), this.toggleJoysticks.bind(this), this.setSpawnPoint.bind(this));
         this.setupMultiplayerCallbacks();
         this.resetRobot();
     },
@@ -129,6 +131,27 @@ AFRAME.registerComponent('sumo-controls', {
 
     toggleJoysticks() {
         UI.toggleJoysticks();
+    },
+
+    setSpawnPoint() {
+        if (this.isMultiplayer) return;
+
+        const currentPos = this.el.object3D.position;
+        const currentRot = this.el.object3D.rotation;
+        const spawnX = this.startPosition.x;
+        const spawnZ = this.startPosition.z;
+
+        const isSamePosition = Math.abs(currentPos.x - spawnX) < 0.01 && Math.abs(currentPos.z - spawnZ) < 0.01;
+
+        if (isSamePosition) {
+            this.startPosition.copy(this.defaultStartPosition);
+            this.startRotation.copy(this.defaultStartRotation);
+            UI.showToast('Spawn reset');
+        } else {
+            this.startPosition.set(currentPos.x, POSITIONS.robotInitialY, currentPos.z);
+            this.startRotation.set(0, currentRot.y, 0);
+            UI.showToast('Spawn set');
+        }
     },
 
     updateFPVCamera() {

@@ -29,13 +29,15 @@ const InputHandler = {
     onReset: null,
     onToggleFPV: null,
     onToggleJoysticks: null,
+    onSetSpawn: null,
     boundKeyDown: null,
     boundKeyUp: null,
 
-    init(onResetCallback, onToggleFPVCallback, onToggleJoysticksCallback) {
+    init(onResetCallback, onToggleFPVCallback, onToggleJoysticksCallback, onSetSpawnCallback) {
         this.onReset = onResetCallback;
         this.onToggleFPV = onToggleFPVCallback;
         this.onToggleJoysticks = onToggleJoysticksCallback;
+        this.onSetSpawn = onSetSpawnCallback;
         this.boundKeyDown = this.handleKeyDown.bind(this);
         this.boundKeyUp = this.handleKeyUp.bind(this);
 
@@ -178,6 +180,7 @@ const InputHandler = {
         if (code === KeyCode.KEY_R && this.onReset && !Multiplayer.isConnected()) this.onReset();
         if (code === KeyCode.KEY_V && this.onToggleFPV) this.onToggleFPV();
         if (code === KeyCode.KEY_J && this.onToggleJoysticks) this.onToggleJoysticks();
+        if (code === KeyCode.KEY_Y && this.onSetSpawn && !Multiplayer.isConnected()) this.onSetSpawn();
     },
 
     handleKeyUp(event) {
@@ -232,11 +235,18 @@ const InputHandler = {
             const gamepads = navigator.getGamepads();
             for (const gamepad of gamepads) {
                 if (!gamepad) continue;
+
                 const aPressed = gamepad.buttons[0]?.pressed;
                 if (aPressed && !this._aButtonWasPressed && this.onReset && !Multiplayer.isConnected()) {
                     this.onReset();
                 }
                 this._aButtonWasPressed = aPressed;
+
+                const yPressed = gamepad.buttons[3]?.pressed;
+                if (yPressed && !this._yButtonWasPressed && this.onSetSpawn && !Multiplayer.isConnected()) {
+                    this.onSetSpawn();
+                }
+                this._yButtonWasPressed = yPressed;
                 return;
             }
         } catch (_error) {}

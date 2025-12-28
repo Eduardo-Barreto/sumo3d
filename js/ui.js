@@ -51,6 +51,7 @@ const UI = {
             countdownOverlay: document.getElementById('countdown-overlay'),
             countdownNumber: document.getElementById('countdown-number'),
             fpvIndicator: document.getElementById('fpv-indicator'),
+            toast: document.getElementById('toast'),
             joysticksContainer: document.getElementById('joysticks-container'),
             settingsBtn: document.getElementById('settings-btn'),
             settingsPanel: document.getElementById('settings-panel'),
@@ -598,6 +599,19 @@ const UI = {
         } else {
             this.elements.joysticksContainer?.classList.remove('visible');
         }
+    },
+
+    showToast(message) {
+        const toast = this.elements.toast;
+        if (!toast) return;
+
+        toast.textContent = message;
+        toast.classList.add('active');
+
+        clearTimeout(this._toastTimeout);
+        this._toastTimeout = setTimeout(() => {
+            toast.classList.remove('active');
+        }, 2000);
     }
 };
 
