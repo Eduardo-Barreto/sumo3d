@@ -629,9 +629,11 @@ const UI = {
         this.showToast(`Obstacle: ${labels[newValue]}`);
     },
 
-    cycleDifficulty() {
+    cycleDifficulty(direction) {
         const current = Settings.obstacleDifficulty;
-        const newValue = current >= 10 ? 1 : current + 1;
+        let newValue = current + direction;
+        if (newValue > 10) newValue = 1;
+        if (newValue < 1) newValue = 10;
 
         Settings.obstacleDifficulty = newValue;
 

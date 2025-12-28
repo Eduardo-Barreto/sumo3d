@@ -252,23 +252,29 @@ const InputHandler = {
                 }
                 this._yButtonWasPressed = yPressed;
 
-                const xPressed = gamepad.buttons[2]?.pressed;
-                if (xPressed && !this._xButtonWasPressed && this.onCycleDifficulty && !Multiplayer.isConnected()) {
-                    this.onCycleDifficulty();
+                const dpadUp = gamepad.buttons[12]?.pressed;
+                if (dpadUp && !this._dpadUpWasPressed && this.onCycleDifficulty && !Multiplayer.isConnected()) {
+                    this.onCycleDifficulty(1);
                 }
-                this._xButtonWasPressed = xPressed;
+                this._dpadUpWasPressed = dpadUp;
 
-                const lbPressed = gamepad.buttons[4]?.pressed;
-                if (lbPressed && !this._lbButtonWasPressed && this.onCycleObstacle && !Multiplayer.isConnected()) {
+                const dpadDown = gamepad.buttons[13]?.pressed;
+                if (dpadDown && !this._dpadDownWasPressed && this.onCycleDifficulty && !Multiplayer.isConnected()) {
+                    this.onCycleDifficulty(-1);
+                }
+                this._dpadDownWasPressed = dpadDown;
+
+                const dpadLeft = gamepad.buttons[14]?.pressed;
+                if (dpadLeft && !this._dpadLeftWasPressed && this.onCycleObstacle && !Multiplayer.isConnected()) {
                     this.onCycleObstacle(-1);
                 }
-                this._lbButtonWasPressed = lbPressed;
+                this._dpadLeftWasPressed = dpadLeft;
 
-                const rbPressed = gamepad.buttons[5]?.pressed;
-                if (rbPressed && !this._rbButtonWasPressed && this.onCycleObstacle && !Multiplayer.isConnected()) {
+                const dpadRight = gamepad.buttons[15]?.pressed;
+                if (dpadRight && !this._dpadRightWasPressed && this.onCycleObstacle && !Multiplayer.isConnected()) {
                     this.onCycleObstacle(1);
                 }
-                this._rbButtonWasPressed = rbPressed;
+                this._dpadRightWasPressed = dpadRight;
                 return;
             }
         } catch (_error) {}
