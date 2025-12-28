@@ -30,14 +30,18 @@ const InputHandler = {
     onToggleFPV: null,
     onToggleJoysticks: null,
     onSetSpawn: null,
+    onCycleObstacle: null,
+    onCycleDifficulty: null,
     boundKeyDown: null,
     boundKeyUp: null,
 
-    init(onResetCallback, onToggleFPVCallback, onToggleJoysticksCallback, onSetSpawnCallback) {
-        this.onReset = onResetCallback;
-        this.onToggleFPV = onToggleFPVCallback;
-        this.onToggleJoysticks = onToggleJoysticksCallback;
-        this.onSetSpawn = onSetSpawnCallback;
+    init(callbacks) {
+        this.onReset = callbacks.onReset;
+        this.onToggleFPV = callbacks.onToggleFPV;
+        this.onToggleJoysticks = callbacks.onToggleJoysticks;
+        this.onSetSpawn = callbacks.onSetSpawn;
+        this.onCycleObstacle = callbacks.onCycleObstacle;
+        this.onCycleDifficulty = callbacks.onCycleDifficulty;
         this.boundKeyDown = this.handleKeyDown.bind(this);
         this.boundKeyUp = this.handleKeyUp.bind(this);
 
@@ -247,6 +251,24 @@ const InputHandler = {
                     this.onSetSpawn();
                 }
                 this._yButtonWasPressed = yPressed;
+
+                const xPressed = gamepad.buttons[2]?.pressed;
+                if (xPressed && !this._xButtonWasPressed && this.onCycleDifficulty && !Multiplayer.isConnected()) {
+                    this.onCycleDifficulty();
+                }
+                this._xButtonWasPressed = xPressed;
+
+                const lbPressed = gamepad.buttons[4]?.pressed;
+                if (lbPressed && !this._lbButtonWasPressed && this.onCycleObstacle && !Multiplayer.isConnected()) {
+                    this.onCycleObstacle(-1);
+                }
+                this._lbButtonWasPressed = lbPressed;
+
+                const rbPressed = gamepad.buttons[5]?.pressed;
+                if (rbPressed && !this._rbButtonWasPressed && this.onCycleObstacle && !Multiplayer.isConnected()) {
+                    this.onCycleObstacle(1);
+                }
+                this._rbButtonWasPressed = rbPressed;
                 return;
             }
         } catch (_error) {}

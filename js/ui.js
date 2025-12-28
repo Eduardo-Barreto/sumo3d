@@ -612,6 +612,38 @@ const UI = {
         this._toastTimeout = setTimeout(() => {
             toast.classList.remove('active');
         }, 2000);
+    },
+
+    cycleObstacle(direction) {
+        const obstacles = ['box', 'cones', 'laser', 'none'];
+        const labels = { box: 'Box', cones: 'Cones', laser: 'Laser', none: 'None' };
+        const select = this.elements.settingObstacle;
+        if (!select) return;
+
+        const currentIndex = obstacles.indexOf(select.value);
+        const newIndex = (currentIndex + direction + obstacles.length) % obstacles.length;
+        const newValue = obstacles[newIndex];
+
+        select.value = newValue;
+        this.setObstacle(newValue);
+        this.showToast(`Obstacle: ${labels[newValue]}`);
+    },
+
+    cycleDifficulty() {
+        const current = Settings.obstacleDifficulty;
+        const newValue = current >= 10 ? 1 : current + 1;
+
+        Settings.obstacleDifficulty = newValue;
+
+        if (this.elements.settingObstacleDifficulty) {
+            this.elements.settingObstacleDifficulty.value = newValue;
+        }
+        if (this.elements.valueObstacleDifficulty) {
+            this.elements.valueObstacleDifficulty.textContent = newValue;
+        }
+        this.updateResetButton(this.elements.resetObstacleDifficulty, newValue, '5');
+        this.applyObstacleDifficulty();
+        this.showToast(`Difficulty: ${newValue}`);
     }
 };
 

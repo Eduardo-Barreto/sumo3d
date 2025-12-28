@@ -46,7 +46,14 @@ AFRAME.registerComponent('sumo-controls', {
         this.savedCameraPos = new THREE.Vector3();
         this.savedCameraRot = new THREE.Euler();
 
-        InputHandler.init(this.resetRobot.bind(this), this.toggleFPV.bind(this), this.toggleJoysticks.bind(this), this.setSpawnPoint.bind(this));
+        InputHandler.init({
+            onReset: this.resetRobot.bind(this),
+            onToggleFPV: this.toggleFPV.bind(this),
+            onToggleJoysticks: this.toggleJoysticks.bind(this),
+            onSetSpawn: this.setSpawnPoint.bind(this),
+            onCycleObstacle: UI.cycleObstacle.bind(UI),
+            onCycleDifficulty: UI.cycleDifficulty.bind(UI)
+        });
         this.setupMultiplayerCallbacks();
         this.resetRobot();
     },
